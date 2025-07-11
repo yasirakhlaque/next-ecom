@@ -1,10 +1,10 @@
 import { BiTrendingUp } from "react-icons/bi";
-import ProductCard from "./ProductCard"
 import { DummyData } from "@/lib/dummyData";
+import ProductCard from "../@ProductCard/page";
 
 export default function TrendingProduct() {
     return (
-        <div className="min-h-screen flex items-center justify-center flex-col gap-4 text-center">
+        <div className="min-h-screen flex items-center justify-center flex-col gap-4 text-center mt-8">
             <div className="flex justify-center items-center gap-2 border-1 border-white rounded-full p-2 font-semibold backdrop-blur-xl bg-white/40 w-60 float">
                 <BiTrendingUp className="text-indigo-500" />
                 <h4 className="text-sm">What's Hot Right Now</h4>
