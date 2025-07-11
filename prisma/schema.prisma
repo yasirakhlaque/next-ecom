@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(cuid())
+  name        String?     
+  email       String      @unique
+  password    String?     // Now optional for OAuth
+  googleId    String?     // Stores Google's unique user ID (optional)
+  image       String?
+  role        Role        @default(CUSTOMER)
+  address     String?
+
+  wishlist    Wishlist[]
+  orders      Order[]
+  reviews     Review[]
+  comments    Comment[]
+  orderDetails OrderDetails[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model Product {
+  id          String     @id @default(cuid())
+  name        String
+  image       String
+  brand       String
+  price       Float
+  discount    Int?
+  description String     @db.Text
+  size        String     // Changed from String[] to String
+  category    String
+  stock       Int
+  rating      Float?
+  reviews     Review[]
+  comments    Comment[]
+  wishlist    Wishlist[]
+  orderDetails OrderDetails[]
+  adminId     String?
+  
+  // Add relations for Tag and Category
+  tags        Tag[]      @relation("ProductTags")
+  categories  Category[] @relation("ProductCategories")
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Tag {
+  id      String     @id @default(cuid())
+  name    String     @unique
+  products Product[] @relation("ProductTags")
+}
+
+model Category {
+  id      String     @id @default(cuid())
+  title   String
+  type    String
+  products Product[] @relation("ProductCategories")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  text       String
+  userId     String
+  productId  String
+  user       User     @relation(fields: [userId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  text       String   @db.Text
+  likes      Int?     @default(0)
+  dislikes   Int?     @default(0)
+  userId     String
+  productId  String
+  user       User     @relation(fields: [userId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  @@unique([userId, productId]) // Prevent duplicates
+}
+
+model Order {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  status      Status     @default(PENDING)
+  totalAmount Int
+  address     String
+  orderDetails OrderDetails[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum Status {
+  PENDING
+  ACCEPTED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderDetails {
+  id              String   @id @default(cuid())
+  orderId         String
+  productId       String
+  userId          String
+  quantity        Int
+  priceAtPurchase Int
+  size            String?
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+}
