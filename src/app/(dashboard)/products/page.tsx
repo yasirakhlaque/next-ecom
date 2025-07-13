@@ -1,8 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductCard from "@/app/(components)/@ProductCard/page";
-import { DummyData } from "@/lib/dummyData";
 import { FiChevronDown } from "react-icons/fi";
+
+// Define the Product type
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    rating?: number;
+    brand: string;
+    image: string;
+    description: string;
+    size: string;
+    category: string;
+    stock: number;
+    discount?: number | null;
+    createdAt: string;
+    updatedAt: string;
+}
 
 // Custom Select Component
 const CustomSelect = ({ value, onChange, options }: {
@@ -65,6 +81,28 @@ const CustomSelect = ({ value, onChange, options }: {
 
 export default function ProductsPage() {
     const [sortOption, setSortOption] = useState("A-Z");
+    const [products, setProducts] = useState<Product[]>([]); // ✅ Added type annotation
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch("/api/products");
+                if (response.ok) {
+                    const data: Product[] = await response.json(); // ✅ Added type annotation
+                    setProducts(data);
+                } else {
+                    console.log("Failed to fetch products");
+                }
+            } catch (err) {
+                console.log("Network error occurred");
+                console.error("Fetch error:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const sortOptions = [
         { value: "A-Z", label: "Name (A-Z)" },
@@ -75,8 +113,8 @@ export default function ProductsPage() {
         { value: "Newest", label: "Newest First" }
     ];
 
-    const getSortedProducts = (sortType: string) => {
-        const sortedData = [...DummyData];
+    const getSortedProducts = (sortType: string): Product[] => { // ✅ Added return type
+        const sortedData = [...products];
 
         switch (sortType) {
             case "A-Z":
@@ -102,6 +140,17 @@ export default function ProductsPage() {
 
     const sortedProducts = getSortedProducts(sortOption);
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
+                    <p className="mt-4 text-lg text-gray-600">Loading products...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-2 py-2 text-gray-600">
             <h1 className="text-4xl font-bold text-center my-8 text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>
@@ -121,7 +170,7 @@ export default function ProductsPage() {
                 </div>
                 <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-8">
                     {sortedProducts.map((product, index) => (
-                        <ProductCard key={`${product.name}-${index}`} product={product} />
+                        <ProductCard key={`${product.id || product.name}-${index}`} product={product} />
                     ))}
                 </div>
             </div>

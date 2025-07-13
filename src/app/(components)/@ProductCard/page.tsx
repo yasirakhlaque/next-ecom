@@ -14,7 +14,12 @@ interface ProductCardProps {
     category?: string;
     rating?: number;
     originalPrice?: number;
-    discount?: number;
+    discount?: number | null;
+    brand: string;
+    size: string;
+    stock: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 // Star Rating Component
@@ -44,7 +49,7 @@ const StarRating = ({ rating = 0 }: { rating: number }) => {
 };
 
 export default function ProductCard({ product }: { product: ProductCardProps }) {
-    let finalPrice = product.originalPrice ? product.originalPrice - (product.originalPrice * (product.discount || 0) / 100) : product.price;
+    let finalPrice = product.price ? product.price - (product.price * (product.discount || 0) / 100) : product.price;
     const [isHovered, setIsHovered] = useState(false);
     const [wishlistToaster, setWishlistToaster] = useState(false);
     const [cartToaster, setCartToaster] = useState(false);
@@ -96,9 +101,9 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
                         <span className="text-xl font-bold text-indigo-600" style={{ fontFamily: 'var(--font-playfair)' }}>
                             ${finalPrice.toFixed(2)}
                         </span>
-                        {product.originalPrice && product.originalPrice !== finalPrice && (
+                        {product.price && product.price !== finalPrice && (
                             <span className="line-through text-xs text-gray-500">
-                                ${product.originalPrice.toFixed(2)}
+                                ${product.price.toFixed(2)}
                             </span>
                         )}
                         {product.discount && (

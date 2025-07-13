@@ -1,10 +1,36 @@
 "use client"
 import ReviewCard from "@/app/(components)/@ReviewCard/page";
 import ToastMessage from "@/components/ToastMessage";
-import { DummyData } from "@/lib/dummyData";
 import { useEffect, useState } from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { FiHeart, FiShoppingBag } from 'react-icons/fi';
+
+// Product interface
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    originalPrice?: number;
+    discount?: number;
+    rating?: number;
+    brand: string;
+    image: string;
+    description: string;
+    size: string;
+    category: string;
+    stock: number;
+    reviews?: Review[];
+}
+
+interface Review {
+    id: string;
+    rating: number;
+    text: string;
+    userName?: string;
+    userImage?: string;
+    likes?: number;
+    dislikes?: number;
+}
 
 // Star Rating Component
 const StarRating = ({ rating = 0 }: { rating: number }) => {
@@ -27,8 +53,8 @@ const StarRating = ({ rating = 0 }: { rating: number }) => {
 };
 
 export default function DetailedProductCard({ params }: { params: Promise<{ id: string }> }) {
-    const [product, setProduct] = useState<any>(null);
-    const [reviews, setReviews] = useState<any[]>([]);
+    const [product, setProduct] = useState<Product | null>(null);
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
     const [wishlistToaster, setWishlistToaster] = useState(false);
@@ -53,14 +79,18 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
             try {
                 const resolvedParams = await params;
                 const id = resolvedParams.id;
-                const foundProduct = DummyData.find(item => item.id === id);
-
-                if (!foundProduct) {
-                    setNotFound(true);
-                } else {
+                
+                // Fetch single product by ID
+                const response = await fetch(`/api/product/${id}`);
+                
+                if (response.ok) {
+                    const foundProduct: Product = await response.json();
                     setProduct(foundProduct);
-                    // Fetch reviews for this product (dummy data for now)
                     setReviews(foundProduct.reviews || []);
+                    setNotFound(false); 
+                } else {
+                    console.log("Failed to fetch product");
+                    setNotFound(true); 
                 }
             } catch (error) {
                 console.error("Error fetching product:", error);
@@ -109,6 +139,7 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
+            {/* Rest of your JSX remains the same */}
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Product Details Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white/30 backdrop-blur-sm border border-white/30 rounded-2xl shadow-xl overflow-hidden">
@@ -196,18 +227,18 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
                     <h2 className="text-2xl font-bold text-gray-800 mb-6" style={{ fontFamily: 'var(--font-playfair)' }}>
                         Customer Reviews ({reviews.length})
                     </h2>
-                    
+
                     {reviews.length > 0 ? (
                         <div className="space-y-4">
-                            {reviews.map((review: any, index: number) => (
-                                <ReviewCard 
-                                    key={`review-${index}`} 
-                                    name={review.userName || review.name} 
-                                    image={review.userImage || review.image} 
-                                    comment={review.text || review.comment} 
-                                    rating={review.rating} 
-                                    likes={review.likes || 0} 
-                                    dislikes={review.dislikes || 0} 
+                            {reviews.map((review: Review, index: number) => (
+                                <ReviewCard
+                                    key={`review-${index}`}
+                                    name={review.userName || "Anonymous"}
+                                    image={review.userImage || ""}
+                                    comment={review.text}
+                                    rating={review.rating}
+                                    likes={review.likes || 0}
+                                    dislikes={review.dislikes || 0}
                                 />
                             ))}
                         </div>
@@ -225,7 +256,7 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
                     <ToastMessage heading="Wishlist" info={`${product.name} added to wishlist`} />
                 </div>
             )}
-            
+
             {cartToaster && (
                 <div className="fixed bottom-4 right-4 z-[9999]">
                     <ToastMessage heading="Cart" info={`${product.name} added to cart`} />
