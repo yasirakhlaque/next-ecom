@@ -4,7 +4,7 @@ import FloatCard from "./FloatCard";
 
 export default function HeroSection() {
     return (
-        <div className="grid md:grid-cols-2 px-8 pt-25 grid-cols-1 gap-8 md:gap-4">
+        <div className="grid md:grid-cols-2 px-8 pt-10 grid-cols-1 gap-8 md:gap-4">
             <div className="space-y-6 flex flex-col">
                 <div className="flex justify-center items-center gap-2 border-1 border-white rounded-full p-2 font-semibold backdrop-blur-xl bg-white/40 w-60 float">
                     <LuSparkles className="text-indigo-500" />
@@ -12,7 +12,7 @@ export default function HeroSection() {
                 </div>
                 <h1 className="sm:text-7xl text-5xl text-gray-800 font-bold flex gap-2 flex-col" style={{ fontFamily: 'var(--font-playfair)' }}>Discover <span className="bg-gradient-to-r from-purple-700 to-purple-400 bg-clip-text text-transparent">Premium</span> Elegance</h1>
                 <p className="text-md md:text-lg leading-relaxed">Experience luxury shopping redefined. Curated collections that blend timeless sophistication with modern innovation.</p>
-                <button className="flex justify-center items-center gap-4 font-semibold rounded-lg px-8 py-2 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-800">Explore Collection <IoIosArrowRoundForward size={24} className="hover:translate-x-2 transition-all duration-300" /></button>
+                <button className="flex justify-center items-center gap-4 font-semibold rounded-lg px-8 py-2 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-800 group">Explore Collection <IoIosArrowRoundForward size={24} className="group-hover:translate-x-2 transition-all duration-300" /></button>
 
                 <div className="flex items-center pt-8 flex-wrap justify-center md:justify-start gap-4">
                     <div className="text-center">
