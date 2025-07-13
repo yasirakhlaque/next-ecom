@@ -6,13 +6,30 @@ import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import UserOrders from "@/app/(components)/@UserOrders/page";
 import ProfilePage from "./profile/page";
 import UserSetting from "./setting/page";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface OrderCardProps {
     order: OrderData;
 }
 
 export default function UserDashboard({ order }: OrderCardProps) {
-    const [activeTab, setActiveTab] = useState("Papers");
+    const { data: session } = useSession();
+    if (!session) {
+        return (
+            <div className="min-h-screen flex justify-center items-center">
+                <div className="flex justify-center items-center py-10 flex-col gap-3 backdrop-blur-xl bg-white/30 border-1 border-white rounded-xl px-14">
+                    <h1 className="text-2xl font-semibold text-gray-700">Please log in to view your dashboard</h1>
+                    <Link href={"/login"}>
+                        <button className="rounded-lg px-4 py-2 bg-gradient-to-tr from-indigo-500 to-purple-500 text-white">
+                            Login
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+    const [activeTab, setActiveTab] = useState("Orders");
     const [orders] = useState<OrderData[]>(OrdersDummyData);
     const tabs = [
         { id: "Orders", label: "Orders", icon: <FiShoppingBag /> },

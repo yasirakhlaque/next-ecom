@@ -7,6 +7,7 @@ import { FaBoxesStacked } from "react-icons/fa6"
 import { FiHeart, FiSun, FiUser } from "react-icons/fi"
 import { IoSettingsOutline } from "react-icons/io5"
 import { LuShoppingBag } from "react-icons/lu"
+import { useSession, signOut } from "next-auth/react"
 
 export default function Navbar() {
     let NavLinks = [
@@ -16,6 +17,18 @@ export default function Navbar() {
         { name: "About", link: "/about" },
     ]
     const [selectedOption, setSelectedOption] = useState(false);
+    const { data: session } = useSession();
+     const handleLogout = async () => {
+        try {
+            await signOut({
+                callbackUrl: '/', // Redirect to home page after logout
+                redirect: true,
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
     return (
         <nav className="sticky top-5 z-50 backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl shadow-2xl shadow-black/10 mx-4 mt-4 px-6 py-6 justify-between items-center text-gray-700 gap-7 hidden md:flex">
             <div className="flex justify-center items-center gap-2">
@@ -56,28 +69,47 @@ export default function Navbar() {
                         <FiUser />
                     </button>
                     {selectedOption &&
-                        <div>
-                            <div className="absolute right-0 top-20 bg-white/90 backdrop-blur-xl border border-white/50 rounded-lg shadow-2xl shadow-black/20 p-2 w-30 text-sm">
-                                <ul className="flex flex-col gap-1 text-gray-800">
-                                    <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
-                                        <FaRegUserCircle />
-                                        <Link href="/user/profile">Profile</Link>
-                                    </li>
-                                    <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
-                                        <FaBoxesStacked />
-                                        <Link href="/user">Dashboard</Link>
-                                    </li>
-                                    <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
-                                        <IoSettingsOutline />
-                                        <Link href="/user/setting">Settings</Link>
-                                    </li>
-                                    <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
-                                        <BsBoxArrowRight />
-                                        <Link href="/logout">Logout</Link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>}
+                        (
+                            session?.user ?
+                                <div>
+                                    <div className="absolute right-0 top-20 bg-white/90 backdrop-blur-xl border border-white/50 rounded-lg shadow-2xl shadow-black/20 p-2 w-30 text-sm">
+                                        <ul className="flex flex-col gap-1 text-gray-800">
+                                            <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
+                                                <FaRegUserCircle />
+                                                <Link href="/user/profile">Profile</Link>
+                                            </li>
+                                            <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
+                                                <FaBoxesStacked />
+                                                <Link href="/user">Dashboard</Link>
+                                            </li>
+                                            <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
+                                                <IoSettingsOutline />
+                                                <Link href="/user/setting">Settings</Link>
+                                            </li>
+                                            <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
+                                                <BsBoxArrowRight />
+                                                <button onClick={handleLogout} className="text-gray-800 hover:text-indigo-600">Logout</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                :
+                                <div>
+                                    <div className="absolute right-0 top-20 bg-white/90 backdrop-blur-xl border border-white/50 rounded-lg shadow-2xl shadow-black/20 p-2 w-30 text-sm">
+                                        <ul className="flex flex-col gap-1 text-gray-800">
+                                            <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
+                                                <IoSettingsOutline />
+                                                <Link href="/login">Login</Link>
+                                            </li>
+                                            <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
+                                                <BsBoxArrowRight />
+                                                <Link href="/signup">Regsiter</Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                        )
+                    }
                 </div>
             </div>
         </nav>

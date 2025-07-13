@@ -1,8 +1,14 @@
 'use client';
-
-import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function AddProductForm() {
+    const { data: session, status } = useSession();
+    const [role, setRole] = useState<string>("");
+    const [isLoadingRole, setIsLoadingRole] = useState(true);
+
+    // Move all useState hooks to the top
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -14,8 +20,30 @@ export default function AddProductForm() {
         discount: '',
         size: ''
     });
-
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const getRole = async () => {
+            if (session?.user?.id) {
+                try {
+                    const res = await fetch(`/api/user/${session.user.id}/role`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setRole(data.role);
+                    } else {
+                        console.error("Failed to fetch user role");
+                    }
+                } catch (error) {
+                    console.error("Error fetching role:", error);
+                }
+            }
+            setIsLoadingRole(false);
+        };
+
+        if (status !== "loading") {
+            getRole();
+        }
+    }, [session?.user?.id, status]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({
@@ -71,9 +99,30 @@ export default function AddProductForm() {
         }
     };
 
+    // Show loading while session or role is loading
+    if (status === "loading" || isLoadingRole) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-xl">Loading...</div>
+            </div>
+        );
+    }
+
+    // Redirect if not authenticated
+    if (!session) {
+        redirect('/');
+        return null;
+    }
+
+    // Redirect if not admin
+    if (role !== "ADMIN") {
+        redirect('/');
+        return null;
+    }
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-xs">
                 <h1 className="text-2xl font-bold mb-6 text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>Add New Product</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
@@ -85,26 +134,28 @@ export default function AddProductForm() {
                         required
                         className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
-                    <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        placeholder="Price"
-                        step="0.01"
-                        required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <input
-                        type="number"
-                        name="discount"
-                        value={formData.discount}
-                        onChange={handleChange}
-                        placeholder="Discount Percentage if any"
-                        min="0"
-                        max="100"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                    <div className='flex justify-center items-center gap-2'>
+                        <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleChange}
+                            placeholder="Price"
+                            step="0.01"
+                            required
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <input
+                            type="number"
+                            name="discount"
+                            value={formData.discount}
+                            onChange={handleChange}
+                            placeholder="Discount Percentage if any"
+                            min="0"
+                            max="100"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
                     <input
                         type="url"
                         name="image"

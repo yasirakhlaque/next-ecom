@@ -1,11 +1,43 @@
 "use client"
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 
 import { IoIosArrowRoundForward, IoIosEyeOff, IoMdEye } from "react-icons/io";
 
 export default function SignUp() {
+     const [isLoading, setIsLoading] = useState(false);
+    const { data: session, status } = useSession();
+        const router = useRouter();
+    
+        // Redirect if already logged in
+        useEffect(() => {
+            if (status === "authenticated") {
+                router.push("/");
+            }
+        }, [status, router]);
+    
+        const handleGoogleSignIn = async () => {
+            setIsLoading(true);
+            try {
+                const result = await signIn('google', {
+                    callbackUrl: '/',
+                    redirect: false,
+                });
+                
+                if (result?.ok) {
+                    router.push('/');
+                } else {
+                    console.error('Sign in failed');
+                }
+            } catch (error) {
+                console.error('Error during sign in:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
     const [isClicked, setIsClicked] = useState(false)
     return (
         <div className="flex justify-center items-center h-screen">
@@ -17,7 +49,14 @@ export default function SignUp() {
                     </div>
                     <h1 className="text-4xl font-semibold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>Join The Family</h1>
                     <p className="text-gray-600">Sign Up to continue shopping</p>
-                    <button className="flex justify-center items-center gap-3 px-6 py-2 font-semibold text-sm hover:bg-gray-300 transition-all duration-300 rounded-lg"><FaGoogle />Continue With Google</button>
+                    <button 
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                    className="flex justify-center items-center gap-3 px-6 py-3 font-semibold text-sm bg-white hover:bg-gray-300 transition-all duration-300 rounded-lg border border-gray-200 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <FaGoogle/>
+                    {isLoading ? 'Signing in...' : 'Continue With Google'}
+                </button>
                     <p className="text-sm text-gray-600">or continue with email</p>
                     <div className="flex flex-col gap-1 w-full my-2 text-sm">
                         <label htmlFor="name" className="font-semibold">Name</label>
