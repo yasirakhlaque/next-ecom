@@ -45,10 +45,12 @@ export default function Navbar() {
                     <div className="absolute font-semibold bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center -top-2 -right-1 shadow-lg">2</div>
                     <FiHeart />
                 </button>
-                <button className="rounded-full bg-white/40 backdrop-blur-sm border border-white/40 p-3 relative hover:bg-gray-300 transition-all duration-300 ">
-                    <div className="absolute font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center -top-2 -right-1 shadow-lg">9</div>
-                    <LuShoppingBag />
-                </button>
+                <Link href={"/user/cart"}>
+                    <button className="rounded-full bg-white/40 backdrop-blur-sm border border-white/40 p-3 relative hover:bg-gray-300 transition-all duration-300 ">
+                        <div className="absolute font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center -top-2 -right-1 shadow-lg">9</div>
+                        <LuShoppingBag />
+                    </button>
+                </Link>
                 <div>
                     <button className="rounded-full bg-white/40 backdrop-blur-sm border border-white/40 p-3 hover:bg-gray-300 transition-all duration-300" onClick={() => setSelectedOption(!selectedOption)}>
                         <FiUser />
