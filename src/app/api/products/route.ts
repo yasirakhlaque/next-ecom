@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { ProductSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -21,6 +22,22 @@ export async function POST(req: NextRequest) {
         // Validation
         if (!name || !description || !price || !image || !category || stock === undefined || !brand || !size) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        const parseProduct = ProductSchema.safeParse({
+            name,
+            description,
+            price: parseFloat(price),
+            image,
+            category,
+            stock: parseInt(stock),
+            brand,
+            discount: discount ? parseInt(discount) : null,
+            size
+        })
+
+        if (!parseProduct.success) {
+            return NextResponse.json({ message:parseProduct.error.format() }, { status: 400 });
         }
 
         const product = await db.product.create({
