@@ -69,7 +69,7 @@ export default function Navbar() {
                                     </li>
                                     <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
                                         <IoSettingsOutline />
-                                        <Link href="/user/settings">Settings</Link>
+                                        <Link href="/user/setting">Settings</Link>
                                     </li>
                                     <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
                                         <BsBoxArrowRight />
