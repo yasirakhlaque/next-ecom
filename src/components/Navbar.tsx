@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { BsBoxArrowRight } from "react-icons/bs"
 import { FaRegUserCircle, FaSearch } from "react-icons/fa"
 import { FaBoxesStacked } from "react-icons/fa6"
@@ -8,8 +8,12 @@ import { FiHeart, FiSun, FiUser } from "react-icons/fi"
 import { IoSettingsOutline } from "react-icons/io5"
 import { LuShoppingBag } from "react-icons/lu"
 import { useSession, signOut } from "next-auth/react"
+import { redirect } from 'next/navigation';
 
 export default function Navbar() {
+    const { data: session, status } = useSession();
+    const [role, setRole] = useState<string>("");
+    const [isLoadingRole, setIsLoadingRole] = useState(true);
     let NavLinks = [
         { name: "Home", link: "/" },
         { name: "Products", link: "/products" },
@@ -17,8 +21,7 @@ export default function Navbar() {
         { name: "About", link: "/about" },
     ]
     const [selectedOption, setSelectedOption] = useState(false);
-    const { data: session } = useSession();
-     const handleLogout = async () => {
+    const handleLogout = async () => {
         try {
             await signOut({
                 callbackUrl: '/', // Redirect to home page after logout
@@ -28,6 +31,29 @@ export default function Navbar() {
             console.error('Logout error:', error);
         }
     };
+
+    useEffect(() => {
+        const getRole = async () => {
+            if (session?.user?.id) {
+                try {
+                    const res = await fetch(`/api/user/${session.user.id}/role`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setRole(data.role);
+                    } else {
+                        console.error("Failed to fetch user role");
+                    }
+                } catch (error) {
+                    console.error("Error fetching role:", error);
+                }
+            }
+            setIsLoadingRole(false);
+        };
+
+        if (status !== "loading") {
+            getRole();
+        }
+    }, [session?.user?.id, status]);
 
     return (
         <nav className="sticky top-5 z-50 backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl shadow-2xl shadow-black/10 mx-4 mt-4 px-6 py-6 justify-between items-center text-gray-700 gap-7 hidden md:flex">
@@ -78,9 +104,10 @@ export default function Navbar() {
                                                 <FaRegUserCircle />
                                                 <Link href="/user/profile">Profile</Link>
                                             </li>
+
                                             <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
                                                 <FaBoxesStacked />
-                                                <Link href="/user">Dashboard</Link>
+                                                <Link href={`${role === "ADMIN" ? "/admin" : "/user"}`}>Dashboard</Link>
                                             </li>
                                             <li className="flex items-center gap-1 hover:text-indigo-600 hover:bg-gray-200 pl-1 py-1 rounded-lg transition-colors duration-300">
                                                 <IoSettingsOutline />
