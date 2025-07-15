@@ -58,49 +58,53 @@ export default function Users() {
     })
 
     return (
-        <div className="min-h-screen my-10 mx-5 flex flex-col gap-6">
-            <div className="bg-white rounded-xl flex justify-center items-center px-4 py-2 relative">
-                <input 
+        <div className="min-h-screen m-10 flex flex-col gap-6">
+            <div>
+                <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: "var(--font-playfair" }}>Users Management</h1>
+                <p className="text-gray-400 my-2">Manage your platform users and their permissions</p>
+            </div>
+            <div className="bg-white rounded-xl flex justify-center items-center px-6 py-10 relative">
+                <input
                     type="search"
-                    name="search" 
+                    name="search"
                     id="search"
                     placeholder="Search users...."
-                    className="w-full outline-none border border-gray-300 rounded-lg px-4 py-2"
+                    className="w-full outline-none border border-purple-600 rounded-lg px-4 py-2 text-xs"
                     value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)} 
+                    onChange={e => setSearchQuery(e.target.value)}
                 />
-                <button 
-                    className="flex gap-2 justify-center items-center px-4 py-2 rounded-lg flex-nowrap" 
+                <button
+                    className="flex gap-2 justify-center items-center px-4 py-2 rounded-lg text-nowrap text-xs"
                     onClick={() => setSelectOption(!selectOption)}
                 >
                     <FaFilter />
                     Role : {selectedRole}
                 </button>
                 {selectOption && (
-                    <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-3 flex flex-col justify-center items-center absolute top-full right-2 z-10 mt-2">
-                        <button 
+                    <div className="bg-white border border-gray-300 shadow-lg rounded-lg p-3 flex flex-col justify-center items-center absolute top-full right-2 z-10 mt-2 text-xs">
+                        <button
                             onClick={() => {
                                 setSelectedRole("ALL");
                                 setSelectOption(false);
-                            }} 
+                            }}
                             className={`hover:bg-gray-200 hover:text-gray-500 rounded-lg duration-300 transition-all px-2 py-1 w-full ${selectedRole === "ALL" && "bg-purple-200 text-purple-500"}`}
                         >
                             All Roles
                         </button>
-                        <button 
+                        <button
                             onClick={() => {
                                 setSelectedRole("ADMIN");
                                 setSelectOption(false);
-                            }} 
+                            }}
                             className={`hover:bg-gray-200 hover:text-gray-500 rounded-lg duration-300 transition-all px-2 py-1 w-full ${selectedRole === "ADMIN" && "bg-purple-200 text-purple-500"}`}
                         >
                             Admin
                         </button>
-                        <button 
+                        <button
                             onClick={() => {
                                 setSelectedRole("CUSTOMER");
                                 setSelectOption(false);
-                            }} 
+                            }}
                             className={`hover:bg-gray-200 hover:text-gray-500 rounded-lg duration-300 transition-all px-2 py-1 w-full ${selectedRole === "CUSTOMER" && "bg-purple-200 text-purple-500"}`}
                         >
                             Customer
@@ -108,7 +112,7 @@ export default function Users() {
                     </div>
                 )}
             </div>
-            
+
             <div className="bg-white rounded-2xl p-8 shadow-sm">
                 <h1 className="text-2xl font-bold mb-8" style={{ fontFamily: "var(--font-playfair)" }}>
                     Users ({filteredUsers.length})
@@ -156,11 +160,10 @@ export default function Users() {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                                user.role === 'ADMIN'
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.role === 'ADMIN'
                                                     ? 'bg-purple-100 text-purple-700'
                                                     : 'bg-blue-100 text-blue-700'
-                                            }`}>
+                                                }`}>
                                                 {user.role === 'ADMIN' ? 'Admin' : 'Customer'}
                                             </span>
                                         </td>
