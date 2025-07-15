@@ -94,7 +94,7 @@ export default function AdminDashboard() {
                     </button>
                 ))}
             </div>
-            <div>
+            <div className="-m-10 my-10">
                 {handleTabs()}
             </div>
         </div>
@@ -129,7 +129,7 @@ function Overview() {
         }
     }
     return (
-        <div className="my-6">
+        <div className="m-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2 border-1 border-white">
                     <h1 className="flex justify-between items-center font-semibold">
