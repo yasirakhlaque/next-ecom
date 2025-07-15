@@ -5,9 +5,26 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         const products = await db.product.findMany({
-            include: { tags: true },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                price: true,
+                image: true,
+                category: true,
+                stock: true,
+                brand: true,
+                discount: true,
+                size: true,
+                rating: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
         });
-        
+
         return NextResponse.json(products, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
@@ -37,7 +54,7 @@ export async function POST(req: NextRequest) {
         })
 
         if (!parseProduct.success) {
-            return NextResponse.json({ message:parseProduct.error.format() }, { status: 400 });
+            return NextResponse.json({ message: parseProduct.error.format() }, { status: 400 });
         }
 
         const product = await db.product.create({
