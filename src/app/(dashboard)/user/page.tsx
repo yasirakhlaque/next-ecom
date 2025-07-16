@@ -29,7 +29,7 @@ export default function UserDashboard({ order }: OrderCardProps) {
             </div>
         );
     }
-    const [activeTab, setActiveTab] = useState("Orders");
+    const [activeTab, setActiveTab] = useState("orders");
     const [orders] = useState<OrderData[]>(OrdersDummyData);
     const tabs = [
         { id: "Orders", label: "Orders", icon: <FiShoppingBag /> },
