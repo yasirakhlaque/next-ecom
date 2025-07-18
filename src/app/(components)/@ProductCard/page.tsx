@@ -1,12 +1,14 @@
 "use client"
 import ToastMessage from '@/components/ToastMessage';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useState } from 'react';
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { FaStar, FaStarHalfAlt, FaRegStar, FaHeart } from 'react-icons/fa';
 import { FiHeart, FiShoppingBag } from 'react-icons/fi';
 
 interface ProductCardProps {
-    id:string;
+    id: string;
     name: string;
     image: string;
     description: string;
@@ -23,7 +25,7 @@ interface ProductCardProps {
 }
 
 // Star Rating Component
-const StarRating = ({ rating = 0 }: { rating: number }) => {
+export const StarRating = ({ rating = 0 }: { rating: number }) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
@@ -48,18 +50,118 @@ const StarRating = ({ rating = 0 }: { rating: number }) => {
     );
 };
 
+export interface WishlistItem {
+    id: string;
+    userId: string;
+    productId: string;
+    product: {
+        id: string;
+        name: string;
+        description: string;
+        price: number;
+        image: string;
+        category: string;
+        stock: number;
+        brand: string;
+        discount: number | null;
+        size: string;
+        rating: number | null;
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
 export default function ProductCard({ product }: { product: ProductCardProps }) {
     let finalPrice = product.price ? product.price - (product.price * (product.discount || 0) / 100) : product.price;
     const [isHovered, setIsHovered] = useState(false);
     const [wishlistToaster, setWishlistToaster] = useState(false);
     const [cartToaster, setCartToaster] = useState(false);
+    const { data: session } = useSession();
+    const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [isWishlisted, setIsWishListed] = useState(false);
+    const { updateWishlistCount } = useWishlist();
 
-    const handleWishlistToaster = () => {
-        setWishlistToaster(true);
-        setTimeout(() => {
-            setWishlistToaster(false);
-        }, 3000);
+
+    useEffect(() => {
+        const fetchWishlist = async () => {
+            if (!session?.user?.id) return;
+
+            try {
+                setLoading(true);
+                const response = await fetch(`/api/user/wishlist/${session.user.id}`);
+                if (!response.ok) throw new Error('Failed to fetch wishlist');
+                const data = await response.json();
+                setWishlistItems(data.wishlistItems || []);
+
+                const isProductWishlisted = data.wishlistItems?.some((item: WishlistItem) =>
+                    item.product?.id === product.id
+                );
+                setIsWishListed(isProductWishlisted || false);
+            } catch (error) {
+                setError("Error fetching wishlist");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchWishlist();
+    }, [session?.user?.id, product.id])
+
+    const handleAddWishlist = async () => {
+        if (!session?.user?.id) {
+            console.log("Please log in to add items to wishlist");
+            return;
+        }
+
+        const isAlreadyInWishlist = wishlistItems.some(item =>
+            item.product?.id === product.id
+        );
+
+        if (isAlreadyInWishlist) {
+            console.log("Item already in wishlist");
+            return;
+        }
+        try {
+            const addWishlist = await fetch(`/api/user/wishlist`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: session.user.id,
+                    productId: product.id
+                })
+            });
+
+            if (addWishlist.ok) {
+                setWishlistToaster(true);
+                setTimeout(() => {
+                    setWishlistToaster(false);
+                }, 3000);
+                updateWishlistCount();
+                setIsWishListed(true);
+            }
+        } catch (error) {
+            console.error("Error adding to wishlist:", error);
+        }
     }
+
+    const handleRemoveItem = async (userId: string, productId: string) => {
+        try {
+            const response = await fetch(`/api/user/wishlist?userId=${userId}&productId=${productId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                setWishlistItems(prev => prev.filter(item => item.productId !== productId));
+                updateWishlistCount();
+                setIsWishListed(false);
+            }
+        } catch (error) {
+            console.error("Error removing item:", error);
+        }
+    };
 
     const handleCartToaster = () => {
         setCartToaster(true);
@@ -75,7 +177,11 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
                     {
                         isHovered &&
                         <div className='absolute z-50 top-2 right-2 p-2 flex flex-col gap-2 text-gray-900'>
-                            <FiHeart size={35} className='bg-white rounded-full p-2 hover:text-pink-600 transition-all duration-300 cursor-pointer' onClick={handleWishlistToaster} />
+                            {isWishlisted ?
+                                <FaHeart size={35} className='bg-white rounded-full p-2 text-pink-600 cursor-pointer' onClick={() => handleRemoveItem(session?.user?.id || '', product.id)} />
+                                :
+                                <FiHeart size={35} className='bg-white rounded-full p-2 hover:text-pink-600 transition-all duration-300 cursor-pointer' onClick={handleAddWishlist} />
+                            }
                             <FiShoppingBag size={35} className='bg-white rounded-full p-2 hover:text-blue-600 transition-all duration-300 cursor-pointer' onClick={handleCartToaster} />
                         </div>
                     }

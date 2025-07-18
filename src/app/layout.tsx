@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { SessionProvider } from "next-auth/react";
 import AuthProvider from "@/providers/auth-provider";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 
 const inter = Inter({ subsets: ["latin"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
@@ -22,8 +23,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${playfair.variable} antialiased bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100`}  >
         <AuthProvider>
-          <Navbar />
-          {children}
+          <WishlistProvider>
+            <Navbar />
+            {children}
+          </WishlistProvider>
         </AuthProvider>
       </body>
     </html>
