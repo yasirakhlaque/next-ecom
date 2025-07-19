@@ -1,11 +1,12 @@
 "use client"
 
-import { StarRating, WishlistItem } from "@/app/(components)/@ProductCard/page";
+import { StarRating } from "@/app/(components)/@ProductCard/page";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { FiTrash2 } from "react-icons/fi";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { WishlistItem } from "@/types/types";
 
 export default function UserWishlist() {
     const { data: session } = useSession();

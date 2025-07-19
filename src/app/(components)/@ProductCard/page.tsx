@@ -1,28 +1,13 @@
 "use client"
 import ToastMessage from '@/components/ToastMessage';
+import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { ProductCardProps, WishlistItem } from '@/types/types';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaStar, FaStarHalfAlt, FaRegStar, FaHeart } from 'react-icons/fa';
 import { FiHeart, FiShoppingBag } from 'react-icons/fi';
-
-interface ProductCardProps {
-    id: string;
-    name: string;
-    image: string;
-    description: string;
-    price: number;
-    category?: string;
-    rating?: number;
-    originalPrice?: number;
-    discount?: number | null;
-    brand: string;
-    size: string;
-    stock: number;
-    createdAt: string;
-    updatedAt: string;
-}
 
 // Star Rating Component
 export const StarRating = ({ rating = 0 }: { rating: number }) => {
@@ -50,27 +35,6 @@ export const StarRating = ({ rating = 0 }: { rating: number }) => {
     );
 };
 
-export interface WishlistItem {
-    id: string;
-    userId: string;
-    productId: string;
-    product: {
-        id: string;
-        name: string;
-        description: string;
-        price: number;
-        image: string;
-        category: string;
-        stock: number;
-        brand: string;
-        discount: number | null;
-        size: string;
-        rating: number | null;
-    };
-    createdAt: string;
-    updatedAt: string;
-}
-
 export default function ProductCard({ product }: { product: ProductCardProps }) {
     let finalPrice = product.price ? product.price - (product.price * (product.discount || 0) / 100) : product.price;
     const [isHovered, setIsHovered] = useState(false);
@@ -82,6 +46,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
     const [error, setError] = useState("");
     const [isWishlisted, setIsWishListed] = useState(false);
     const { updateWishlistCount } = useWishlist();
+    const { refreshCart,updateCartCount } = useCart();
 
 
     useEffect(() => {
@@ -163,6 +128,41 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
         }
     };
 
+
+    const handleCartAdd = async () => {
+        if (!session?.user?.id) {
+            console.log("Please log in to add items to cart");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/user/cart`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: session.user.id,
+                    productId: product.id
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                handleCartToaster();
+                updateCartCount(); 
+            } else {
+                if (data.maxStockReached) {
+                    console.log(data.error);
+                } else {
+                    console.error("Failed to add item to cart");
+                }
+            }
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+        }
+    }
     const handleCartToaster = () => {
         setCartToaster(true);
         setTimeout(() => {
@@ -182,7 +182,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
                                 :
                                 <FiHeart size={35} className='bg-white rounded-full p-2 hover:text-pink-600 transition-all duration-300 cursor-pointer' onClick={handleAddWishlist} />
                             }
-                            <FiShoppingBag size={35} className='bg-white rounded-full p-2 hover:text-blue-600 transition-all duration-300 cursor-pointer' onClick={handleCartToaster} />
+                            <FiShoppingBag size={35} className='bg-white rounded-full p-2 hover:text-blue-600 transition-all duration-300 cursor-pointer' onClick={handleCartAdd} />
                         </div>
                     }
                 </div>
