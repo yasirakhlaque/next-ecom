@@ -1,12 +1,7 @@
 "use client"
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useSession } from "next-auth/react";
-
-interface CartContextType {
-    cartItemsCount: number;
-    updateCartCount: () => void;
-    refreshCart: () => void;
-}
+import { CartContextType } from "@/types/types";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 

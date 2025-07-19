@@ -2,23 +2,7 @@
 import { useEffect, useState } from "react";
 import ProductCard from "@/app/(components)/@ProductCard/page";
 import { FiChevronDown } from "react-icons/fi";
-
-// Define the Product type
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    rating?: number;
-    brand: string;
-    image: string;
-    description: string;
-    size: string;
-    category: string;
-    stock: number;
-    discount?: number | null;
-    createdAt: string;
-    updatedAt: string;
-}
+import { Product } from "@/types/types";
 
 // Custom Select Component
 const CustomSelect = ({ value, onChange, options }: {

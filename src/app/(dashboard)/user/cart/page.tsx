@@ -6,28 +6,7 @@ import { FiShoppingBag, FiMinus, FiPlus } from "react-icons/fi";
 import { RxCross2 } from "react-icons/rx";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCart } from "@/contexts/CartContext";
-
-interface CartItemProps {
-    id: string;
-    userId: string;
-    productId: string;
-    quantity: number;
-    product: {
-        id: string;
-        name: string;
-        description: string;
-        price: number;
-        image: string;
-        category: string;
-        stock: number;
-        brand: string;
-        discount: number | null;
-        size: string;
-        rating: number | null;
-    };
-    createdAt: string;
-    updatedAt: string;
-}
+import { CartItemProps } from "@/types/types";
 
 export default function Cart() {
     const [cartItems, setCartItems] = useState<CartItemProps[]>([]);
@@ -298,8 +277,8 @@ function CartCard({
                             )}
                         </div>
                         <span className={`text-sm ${prod.product.stock <= 5
-                                ? 'text-orange-500 font-semibold'
-                                : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                            ? 'text-orange-500 font-semibold'
+                            : theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                             }`}>
                             {prod.product.stock <= 0
                                 ? 'Out of Stock'
@@ -330,10 +309,10 @@ function CartCard({
                             onClick={() => onQuantityChange(prod.productId, 'increase')}
                             disabled={isAtMaxStock || isOutOfStock}
                             className={`p-2 rounded-full transition-all duration-300 ${isAtMaxStock || isOutOfStock
-                                    ? 'opacity-50 cursor-not-allowed bg-gray-300'
-                                    : theme === 'dark'
-                                        ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
-                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                ? 'opacity-50 cursor-not-allowed bg-gray-300'
+                                : theme === 'dark'
+                                    ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                                 }`}
                         >
                             <FiPlus size={16} />

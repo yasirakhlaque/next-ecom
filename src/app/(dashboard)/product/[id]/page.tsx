@@ -1,35 +1,25 @@
 "use client"
 import ReviewCard from "@/app/(components)/@ReviewCard/page";
 import ToastMessage from "@/components/ToastMessage";
+import { Review } from "@/types/types";
 import { useEffect, useState } from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { FiHeart, FiShoppingBag } from 'react-icons/fi';
 
-// Product interface
 interface Product {
     id: string;
     name: string;
-    price: number;
-    originalPrice?: number;
-    discount?: number;
-    rating?: number;
-    brand: string;
-    image: string;
     description: string;
-    size: string;
+    price: number;
+    image: string;
     category: string;
     stock: number;
+    brand: string;
+    discount?: number;
+    size: string;
+    rating?: number;
+    originalPrice?: number;
     reviews?: Review[];
-}
-
-interface Review {
-    id: string;
-    rating: number;
-    text: string;
-    userName?: string;
-    userImage?: string;
-    likes?: number;
-    dislikes?: number;
 }
 
 // Star Rating Component

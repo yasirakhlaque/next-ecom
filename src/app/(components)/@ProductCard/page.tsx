@@ -46,7 +46,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
     const [error, setError] = useState("");
     const [isWishlisted, setIsWishListed] = useState(false);
     const { updateWishlistCount } = useWishlist();
-    const { refreshCart,updateCartCount } = useCart();
+    const { refreshCart, updateCartCount } = useCart();
 
 
     useEffect(() => {
@@ -151,7 +151,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
 
             if (response.ok) {
                 handleCartToaster();
-                updateCartCount(); 
+                updateCartCount();
             } else {
                 if (data.maxStockReached) {
                     console.log(data.error);

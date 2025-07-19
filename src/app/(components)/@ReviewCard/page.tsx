@@ -1,13 +1,5 @@
+import { Reviews } from "@/types/types";
 import { BsHandThumbsDown, BsHandThumbsUp } from "react-icons/bs";
-
-interface Reviews {
-    name: string,
-    image: string,
-    rating: number,
-    comment: string,
-    likes: number,
-    dislikes: number,
-}
 
 export default function ReviewCard({ name, image, rating, comment, likes, dislikes }: Reviews) {
     return (

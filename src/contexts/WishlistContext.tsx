@@ -1,12 +1,8 @@
 "use client"
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
+import { WishlistContextType } from '@/types/types';
 
-interface WishlistContextType {
-    wishlistCount: number;
-    updateWishlistCount: () => void;
-    refreshWishlist: () => void;
-}
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 

@@ -1,6 +1,5 @@
 "use client";
 import { BiTrendingUp } from "react-icons/bi";
-import { DummyData } from "@/lib/dummyData";
 import ProductCard from "../@ProductCard/page";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import Link from "next/link";
@@ -21,7 +20,7 @@ export default function TrendingProduct() {
                 } else {
                     console.error("Not Found");
                 }
-            }catch (error) {
+            } catch (error) {
                 console.error("Error fetching products:", error);
             } finally {
                 setLoading(false);
@@ -30,8 +29,8 @@ export default function TrendingProduct() {
         fetchProducts();
     }, [])
 
-    if(loading) {
-        return <Loading />; 
+    if (loading) {
+        return <Loading />;
     }
     return (
         <div className="min-h-screen flex items-center justify-center flex-col gap-4 text-center mt-8">

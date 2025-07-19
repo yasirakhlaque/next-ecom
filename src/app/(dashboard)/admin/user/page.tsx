@@ -1,17 +1,8 @@
 "use client"
+import { User } from "@/types/types";
 import { useEffect, useState } from "react"
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    image?: string;
-    createdAt: string;
-    orders: { totalAmount: number; status: string }[];
-}
 
 export default function Users() {
     const [users, setUsers] = useState<User[]>([]);

@@ -1,7 +1,5 @@
-interface ToastMessageProps {
-    heading: string;
-    info: string;
-}
+import { ToastMessageProps } from "@/types/types";
+
 export default function ToastMessage({ heading, info }: ToastMessageProps) {
     return (
         <div className="bg-white/30 backdrop-blur-xl text-left border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm w-full pr-20 fadeIn">

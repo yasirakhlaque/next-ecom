@@ -2,22 +2,7 @@
 import { useEffect, useState } from "react";
 import { FaFilter } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
-
-interface Product {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    category: string;
-    stock: number;
-    brand: string;
-    discount?: number;
-    size: string;
-    rating?: number;
-    createdAt: string;
-    updatedAt: string;
-}
+import { Product } from "@/types/types";
 
 export default function Products() {
     const [products, setProducts] = useState<Product[]>([]);
