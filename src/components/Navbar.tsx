@@ -4,12 +4,13 @@ import { useEffect, useState } from "react"
 import { BsBoxArrowRight } from "react-icons/bs"
 import { FaRegUserCircle, FaSearch } from "react-icons/fa"
 import { FaBoxesStacked } from "react-icons/fa6"
-import { FiHeart, FiSun, FiUser } from "react-icons/fi"
+import { FiHeart, FiMoon, FiSun, FiUser } from "react-icons/fi"
 import { IoSettingsOutline } from "react-icons/io5"
 import { LuShoppingBag } from "react-icons/lu"
 import { useSession, signOut } from "next-auth/react"
 import { redirect } from 'next/navigation';
 import { useWishlist } from "@/contexts/WishlistContext"
+import { useTheme } from "@/contexts/ThemeContext"
 
 export default function Navbar() {
     const { data: session, status } = useSession();
@@ -18,6 +19,7 @@ export default function Navbar() {
     const [wishlistNumber, setWishlistNumber] = useState(0);
     const [wishlistLoading, setWishlistLoading] = useState(false);
     const { wishlistCount } = useWishlist();
+    const { theme,toggleTheme } = useTheme();
 
     let NavLinks = [
         { name: "Home", link: "/" },
@@ -93,7 +95,7 @@ export default function Navbar() {
     }, [session?.user?.id, status]);
 
     return (
-        <nav className="sticky top-5 z-50 backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl shadow-2xl shadow-black/10 mx-4 mt-4 px-6 py-6 justify-between items-center text-gray-700 gap-7 hidden md:flex">
+        <nav className={`sticky top-5 z-50 backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl shadow-2xl shadow-black/10 mx-4 mt-4 px-6 py-6 justify-between items-center text-gray-700 gap-7 hidden md:flex `}>
             <div className="flex justify-center items-center gap-2">
                 <h3 className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">L</h3>
                 <h1 className="text-gray-800 font-semibold text-xl" style={{ fontFamily: 'var(--font-playfair)' }}>Luxe</h1>
@@ -114,8 +116,8 @@ export default function Navbar() {
                 <input type="search" name="search" id="search" placeholder="Search Premium Products...." className="outline-none w-full bg-transparent placeholder-gray-500" />
             </div>
             <div className="gap-4 flex text-gray-800">
-                <button className="rounded-full bg-white/40 backdrop-blur-sm border border-white/40 p-3 hover:bg-gray-300 transition-all duration-300 ">
-                    <FiSun />
+                <button className="rounded-full bg-white/40 backdrop-blur-sm border border-white/40 p-3 hover:bg-gray-300 transition-all duration-300 " onClick={toggleTheme}>
+                    {theme === "light" ? <FiSun /> : <FiMoon />}
                 </button>
                 <Link href={"/user/wishlist"}>
                     <button className="rounded-full bg-white/40 backdrop-blur-sm border border-white/40 p-3 relative hover:bg-gray-300 transition-all duration-300 ">
