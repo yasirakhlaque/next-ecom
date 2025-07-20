@@ -1,5 +1,5 @@
 import HeroSection from "@/components/HeroSection";
-import TrendingProduct from "./(components)/@TrendingProduct/page";
+import TrendingProduct from "./@TrendingProduct/page";
 
 export default function Home() {
   return (

@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import ProductCard from "@/app/(components)/@ProductCard/page";
 import { FiChevronDown } from "react-icons/fi";
 import { Product } from "@/types/types";
+import ProductCard from "@/app/@ProductCard/page";
 
 // Custom Select Component
 const CustomSelect = ({ value, onChange, options }: {

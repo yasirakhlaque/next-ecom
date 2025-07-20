@@ -3,31 +3,29 @@ import { useState } from "react";
 import { OrderData, OrdersDummyData } from "@/lib/dummyData";
 import { FiHeart, FiSettings, FiShoppingBag, FiUser } from "react-icons/fi";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
-import UserOrders from "@/app/(components)/@UserOrders/page";
+import UserOrders from "@/app/@UserOrders/page";
 import ProfilePage from "./profile/page";
 import UserSetting from "./setting/page";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-interface OrderCardProps {
-    order: OrderData;
-}
-
-export default function UserDashboard({ order }: OrderCardProps) {
+export default function UserDashboard() { 
     const [activeTab, setActiveTab] = useState("orders");
     const [orders] = useState<OrderData[]>(OrdersDummyData);
+    const { data: session } = useSession();
+
     const tabs = [
-        { id: "Orders", label: "Orders", icon: <FiShoppingBag /> },
+        { id: "orders", label: "Orders", icon: <FiShoppingBag /> },
         { id: "savedItems", label: "Saved Items", icon: <FiHeart /> },
         { id: "Profile", label: "Profile", icon: <FiUser /> },
-        { id: "Settings", label: "Setting", icon: <FiSettings /> },
+        { id: "Settings", label: "Settings", icon: <FiSettings /> }
     ];
-    const { data: session } = useSession();
+
     if (!session) {
         return (
-            <div className="min-h-screen flex justify-center items-center">
-                <div className="flex justify-center items-center py-10 flex-col gap-3 backdrop-blur-xl bg-white/30 border-1 border-white rounded-xl px-14">
-                    <h1 className="text-2xl font-semibold text-gray-700">Please log in to view your dashboard</h1>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold mb-4">Please log in to access your dashboard</h1>
                     <Link href={"/login"}>
                         <button className="rounded-lg px-4 py-2 bg-gradient-to-tr from-indigo-500 to-purple-500 text-white">
                             Login
@@ -37,6 +35,7 @@ export default function UserDashboard({ order }: OrderCardProps) {
             </div>
         );
     }
+
     const handleOptions = () => {
         switch (activeTab) {
             case 'orders':
@@ -52,7 +51,9 @@ export default function UserDashboard({ order }: OrderCardProps) {
                 return <UserOrders />
         }
     }
+
     const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+
     return (
         <div className="flex justify-center flex-col gap-3 min-h-screen px-16 my-8">
             <h1 className="text-5xl font-semibold text-gray-900 " style={{ fontFamily: 'var(--font-playfair)' }}>My Dashboard</h1>
@@ -63,15 +64,15 @@ export default function UserDashboard({ order }: OrderCardProps) {
                     <h4 className="font-bold text-3xl">{orders.length}</h4>
                 </div>
                 <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-4 flex flex-col gap-2">
-                    <h1 className="flex justify-between items-center font-semibold">Saved Items <FiHeart className="text-pink-500" /></h1>
-                    <h4 className="font-bold text-3xl">12</h4>
+                    <h1 className="flex justify-between items-center font-semibold">Total Spent <RiMoneyDollarCircleLine className="text-green-500" /></h1>
+                    <h4 className="font-bold text-3xl">${totalSpent.toFixed(2)}</h4>
                 </div>
                 <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-4 flex flex-col gap-2">
-                    <h1 className="flex justify-between items-center font-semibold">Total Spent <RiMoneyDollarCircleLine size={24} className="text-green-500" /></h1>
-                    <h4 className="font-bold text-3xl">${totalSpent}</h4>
+                    <h1 className="flex justify-between items-center font-semibold">Saved Items <FiHeart className="text-pink-500" /></h1>
+                    <h4 className="font-bold text-3xl">0</h4>
                 </div>
             </div>
-            <div className="flex flex-wrap w-fit shadow-lg items-center justify-center mt-6 bg-white rounded-lg md:rounded-full backdrop-blur-2xl">
+            <div className="flex flex-wrap gap-2 mt-6">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}

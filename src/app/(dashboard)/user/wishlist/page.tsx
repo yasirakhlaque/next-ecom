@@ -1,6 +1,6 @@
 "use client"
 
-import { StarRating } from "@/app/(components)/@ProductCard/page";
+import { StarRating } from "@/app/@ProductCard/page";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";

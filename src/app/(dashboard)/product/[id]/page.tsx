@@ -1,5 +1,5 @@
 "use client"
-import ReviewCard from "@/app/(components)/@ReviewCard/page";
+import ReviewCard from "@/app/@ReviewCard/page";
 import ToastMessage from "@/components/ToastMessage";
 import { Review } from "@/types/types";
 import { useEffect, useState } from "react";

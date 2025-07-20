@@ -1,3 +1,4 @@
+"use client"
 import { OrderData, OrdersDummyData } from "@/lib/dummyData";
 import Link from "next/link";
 import { useState } from "react";
