@@ -14,6 +14,14 @@ interface OrderCardProps {
 }
 
 export default function UserDashboard({ order }: OrderCardProps) {
+    const [activeTab, setActiveTab] = useState("orders");
+    const [orders] = useState<OrderData[]>(OrdersDummyData);
+    const tabs = [
+        { id: "Orders", label: "Orders", icon: <FiShoppingBag /> },
+        { id: "savedItems", label: "Saved Items", icon: <FiHeart /> },
+        { id: "Profile", label: "Profile", icon: <FiUser /> },
+        { id: "Settings", label: "Setting", icon: <FiSettings /> },
+    ];
     const { data: session } = useSession();
     if (!session) {
         return (
@@ -29,14 +37,6 @@ export default function UserDashboard({ order }: OrderCardProps) {
             </div>
         );
     }
-    const [activeTab, setActiveTab] = useState("orders");
-    const [orders] = useState<OrderData[]>(OrdersDummyData);
-    const tabs = [
-        { id: "Orders", label: "Orders", icon: <FiShoppingBag /> },
-        { id: "savedItems", label: "Saved Items", icon: <FiHeart /> },
-        { id: "Profile", label: "Profile", icon: <FiUser /> },
-        { id: "Settings", label: "Setting", icon: <FiSettings /> },
-    ];
     const handleOptions = () => {
         switch (activeTab) {
             case 'orders':
@@ -71,12 +71,12 @@ export default function UserDashboard({ order }: OrderCardProps) {
                     <h4 className="font-bold text-3xl">${totalSpent}</h4>
                 </div>
             </div>
-            <div className="flex flex-wrap w-fit shadow-lg items-center mt-6 bg-white rounded-full backdrop-blur-2xl">
+            <div className="flex flex-wrap w-fit shadow-lg items-center justify-center mt-6 bg-white rounded-lg md:rounded-full backdrop-blur-2xl">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 m-2 rounded-full font-bold text-sm transition-all duration-200 whitespace-nowrap flex justify-center items-center gap-2
+                        className={`px-4 py-2 m-2 rounded-lg md:rounded-full font-bold text-sm transition-all duration-200 whitespace-nowrap flex justify-center items-center gap-2
                                 ${activeTab === tab.id
                                 ? "bg-gradient-to-tr from-indigo-600 to-purple-600 text-white"
                                 : "text-gray-700 font-medium hover:bg-gray-600 hover:text-gray-100"}`}
