@@ -7,16 +7,16 @@ export default function ProfilePage() {
     const { data: session } = useSession();
 
     return (
-        <div className="min-h-screen m-10">
+        <div className="min-h-screen m-5 md:m-10">
             <h1 className="text-3xl font-semibold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>Profile Information</h1>
-            <div className="flex justify-center gap-4 p-6">
-                <div className="flex flex-col items-center justify-center gap-4 bg-white/30 backdrop-blur-xl rounded-lg shadow-lg p-6 border-1 border-white w-1/3 h-60">
+            <div className="flex justify-center gap-4 p-6 flex-col md:flex-row">
+                <div className="flex flex-col items-center justify-center gap-4 bg-white/30 backdrop-blur-xl rounded-lg shadow-lg p-6 border-1 border-white w-full md:w-1/3 h-60">
                     <div className="h-30 w-30">
                         <img src={session?.user.image ||"https://i.pinimg.com/736x/48/b8/10/48b8101bf681dca624173b045c67047d.jpg"} alt="user image" className="h-[100%] w-[100%] object-cover rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600" />
                     </div>
                     <h1 className="text-xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>{session?.user.name}</h1>
                 </div>
-                <div className="flex flex-col w-2/3 justify-center items-center gap-4">
+                <div className="flex flex-col w-full md:w-2/3 justify-center items-center gap-4">
                     <div className="bg-white/30 border-1 border-white backdrop-blur-xl rounded-lg shadow-lg p-6 flex flex-col gap-4 w-full">
                         <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Personal Information</h1>
                         <div className="grid grid-cols-1 gap-4">
