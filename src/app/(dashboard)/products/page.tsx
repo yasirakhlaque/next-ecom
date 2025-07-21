@@ -142,8 +142,8 @@ export default function ProductsPage() {
             </h1>
             <div className="px-8 pt-10">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-semibold" style={{ fontFamily: 'var(--font-playfair)' }}>All Products</h1>
-                    <div className="mb-6 flex items-center gap-4">
+                    <h1 className="text-xl md:text-3xl font-semibold" style={{ fontFamily: 'var(--font-playfair)' }}>All Products</h1>
+                    <div className="mb-6 flex items-center justify-end gap-4 flex-wrap">
                         <p className="text-gray-700 font-medium text-nowrap">Sort by:</p>
                         <CustomSelect
                             value={sortOption}
