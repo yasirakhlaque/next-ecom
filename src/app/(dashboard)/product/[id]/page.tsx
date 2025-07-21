@@ -1,9 +1,12 @@
 "use client"
 import ReviewCard from "@/app/@ReviewCard/page";
 import ToastMessage from "@/components/ToastMessage";
-import { Review } from "@/types/types";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { Review, WishlistItem } from "@/types/types";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import { FaStar, FaStarHalfAlt, FaRegStar, FaHeart } from 'react-icons/fa';
 import { FiHeart, FiShoppingBag } from 'react-icons/fi';
 
 interface Product {
@@ -18,7 +21,6 @@ interface Product {
     discount?: number;
     size: string;
     rating?: number;
-    originalPrice?: number;
     reviews?: Review[];
 }
 
@@ -49,6 +51,13 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
     const [notFound, setNotFound] = useState(false);
     const [wishlistToaster, setWishlistToaster] = useState(false);
     const [cartToaster, setCartToaster] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+    const [selectedSize, setSelectedSize] = useState<string>("");
+    
+    const { updateWishlistCount } = useWishlist();
+    const { updateCartCount } = useCart();
+    const { data: session } = useSession();
 
     const handleWishlistToaster = () => {
         setWishlistToaster(true);
@@ -64,23 +73,24 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
         }, 3000);
     }
 
+    // Fetch product data
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const resolvedParams = await params;
                 const id = resolvedParams.id;
-                
-                // Fetch single product by ID
+
                 const response = await fetch(`/api/product/${id}`);
-                
+
                 if (response.ok) {
                     const foundProduct: Product = await response.json();
                     setProduct(foundProduct);
                     setReviews(foundProduct.reviews || []);
-                    setNotFound(false); 
+                    setSelectedSize(foundProduct.size || "");
+                    setNotFound(false);
                 } else {
                     console.log("Failed to fetch product");
-                    setNotFound(true); 
+                    setNotFound(true);
                 }
             } catch (error) {
                 console.error("Error fetching product:", error);
@@ -91,6 +101,120 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
         }
         fetchProduct();
     }, [params]);
+
+    // Check if product is in wishlist
+    useEffect(() => {
+        const fetchWishlistStatus = async () => {
+            if (!session?.user?.id || !product?.id) return;
+
+            try {
+                const response = await fetch(`/api/user/wishlist/${session.user.id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const isProductWishlisted = data.wishlistItems?.some(
+                        (item: WishlistItem) => item.product?.id === product.id
+                    );
+                    setIsWishlisted(isProductWishlisted || false);
+                    setWishlistItems(data.wishlistItems || []);
+                }
+            } catch (error) {
+                console.error("Error fetching wishlist status:", error);
+            }
+        };
+
+        fetchWishlistStatus();
+    }, [session?.user?.id, product?.id]);
+
+    const handleCartAdd = async () => {
+        if (!session?.user?.id) {
+            console.log("Please log in to add items to cart");
+            return;
+        }
+
+        if (!product) {
+            console.error("No product selected");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/user/cart`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: session.user.id,
+                    productId: product.id,
+                    size: selectedSize
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                handleCartToaster();
+                updateCartCount();
+            } else {
+                if (data.maxStockReached) {
+                    console.log(data.error);
+                } else {
+                    console.error("Failed to add item to cart:", data.error);
+                }
+            }
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+        }
+    }
+
+    const handleWishlistToggle = async () => {
+        if (!session?.user?.id) {
+            console.log("Please log in to manage wishlist");
+            return;
+        }
+
+        if (!product) {
+            console.error("No product selected");
+            return;
+        }
+
+        try {
+            if (isWishlisted) {
+                // Remove from wishlist
+                const response = await fetch(`/api/user/wishlist?userId=${session.user.id}&productId=${product.id}`, {
+                    method: "DELETE"
+                });
+
+                if (response.ok) {
+                    setIsWishlisted(false);
+                    updateWishlistCount();
+                    console.log("Removed from wishlist");
+                } else {
+                    console.error("Failed to remove from wishlist");
+                }
+            } else {
+                // Add to wishlist
+                const response = await fetch(`/api/user/wishlist`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: session.user.id,
+                        productId: product.id
+                    })
+                });
+
+                if (response.ok) {
+                    setIsWishlisted(true);
+                    handleWishlistToaster();
+                    updateWishlistCount();
+                } else {
+                    const data = await response.json();
+                    console.error("Failed to add to wishlist:", data.error);
+                }
+            }
+        } catch (error) {
+            console.error("Error managing wishlist:", error);
+        }
+    };
 
     // Loading state
     if (loading) {
@@ -123,13 +247,11 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
     }
 
     // Calculate final price
-    const finalPrice = product.originalPrice
-        ? product.originalPrice - (product.originalPrice * (product.discount || 0) / 100)
-        : product.price;
+    const finalPrice = product.price - (product.price * (product.discount || 0) / 100);
+    const hasDiscount = product.discount && product.discount > 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
-            {/* Rest of your JSX remains the same */}
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Product Details Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white/30 backdrop-blur-sm border border-white/30 rounded-2xl shadow-xl overflow-hidden">
@@ -168,16 +290,29 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
                             <span className="text-3xl font-bold text-indigo-600" style={{ fontFamily: 'var(--font-playfair)' }}>
                                 ${finalPrice.toFixed(2)}
                             </span>
-                            {product.originalPrice && product.originalPrice !== finalPrice && (
-                                <span className="line-through text-xl text-gray-500">
-                                    ${product.originalPrice.toFixed(2)}
-                                </span>
+                            {hasDiscount && (
+                                <>
+                                    <span className="line-through text-xl text-gray-500">
+                                        ${product.price.toFixed(2)}
+                                    </span>
+                                    <span className="text-sm text-red-500 bg-red-100 px-3 py-1 rounded-full font-medium">
+                                        {product.discount}% Off
+                                    </span>
+                                </>
                             )}
-                            {product.discount && (
-                                <span className="text-sm text-red-500 bg-red-100 px-3 py-1 rounded-full font-medium">
-                                    {product.discount}% Off
-                                </span>
-                            )}
+                        </div>
+
+                        {/* Size Selection */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                            <select 
+                                value={selectedSize} 
+                                onChange={(e) => setSelectedSize(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                                <option value={product.size}>{product.size}</option>
+                                {/* Add more sizes if needed */}
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
@@ -186,27 +321,33 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
                                 <p className="font-medium text-gray-800">{product.brand || "N/A"}</p>
                             </div>
                             <div className="bg-white/50 rounded-lg p-3">
-                                <span className="text-gray-500">Size:</span>
-                                <p className="font-medium text-gray-800">{product.size || "N/A"}</p>
-                            </div>
-                            <div className="bg-white/50 rounded-lg p-3">
                                 <span className="text-gray-500">Stock:</span>
-                                <p className="font-medium text-gray-800">{product.stock || "N/A"} available</p>
-                            </div>
-                            <div className="bg-white/50 rounded-lg p-3">
-                                <span className="text-gray-500">Rating:</span>
-                                <p className="font-medium text-gray-800">{product.rating || "N/A"}/5</p>
+                                <p className="font-medium text-gray-800">{product.stock} available</p>
                             </div>
                         </div>
 
                         <div className="flex gap-4">
-                            <button className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2" onClick={handleCartToaster}>
+                            <button 
+                                onClick={handleCartAdd}
+                                disabled={product.stock === 0}
+                                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                                    product.stock === 0 
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                        : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700'
+                                }`}
+                            >
                                 <FiShoppingBag />
-                                Add to Cart
+                                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                             </button>
-                            <button className="bg-white/50 backdrop-blur-sm border border-white/40 text-gray-700 py-3 px-6 rounded-lg font-medium hover:text-pink-600 transition-all duration-300 flex items-center justify-center gap-2" onClick={handleWishlistToaster}>
-                                <FiHeart />
-                                Wishlist
+                            
+                            <button
+                                onClick={handleWishlistToggle}
+                                className={`bg-white/50 backdrop-blur-sm border border-white/40 py-3 px-6 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                                    isWishlisted ? 'text-pink-600 bg-pink-50 border-pink-200' : 'text-gray-700 hover:text-pink-600'
+                                }`}
+                            >
+                                {isWishlisted ? <FaHeart /> : <FiHeart />}
+                                {isWishlisted ? 'Wishlisted' : 'Wishlist'}
                             </button>
                         </div>
                     </div>
@@ -224,7 +365,7 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
                                 <ReviewCard
                                     key={`review-${index}`}
                                     name={review.userName || "Anonymous"}
-                                    image={review.userImage || ""}
+                                    image={review.userImage || "/api/placeholder/50/50"}
                                     comment={review.text}
                                     rating={review.rating}
                                     likes={review.likes || 0}
@@ -243,13 +384,13 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
             {/* Toast Messages */}
             {wishlistToaster && (
                 <div className="fixed bottom-4 right-4 z-[9999]">
-                    <ToastMessage heading="Wishlist" info={`${product.name} added to wishlist`} />
+                    <ToastMessage heading="Added to Wishlist" info={product.name} />
                 </div>
             )}
 
             {cartToaster && (
                 <div className="fixed bottom-4 right-4 z-[9999]">
-                    <ToastMessage heading="Cart" info={`${product.name} added to cart`} />
+                    <ToastMessage heading="Added to Cart" info={product.name} />
                 </div>
             )}
         </div>
