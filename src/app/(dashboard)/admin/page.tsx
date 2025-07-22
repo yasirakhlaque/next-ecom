@@ -1,7 +1,8 @@
 "use client";
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"; // Import useRouter instead of redirect
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus, FaRegEye } from "react-icons/fa";
 import Users from "./user/page";
 import Products from "./products/page";
@@ -12,8 +13,45 @@ import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { LuUsers } from "react-icons/lu";
 
 export default function AdminDashboard() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession(); // Get status as well
+    const router = useRouter(); // Use useRouter for client-side navigation
     const [activeTab, setActiveTab] = useState("overview");
+
+    useEffect(() => {
+        // Only run the check when session is loaded
+        if (status === "loading") return; // Still loading
+        
+        if (status === "unauthenticated") {
+            router.push("/login");
+            return;
+        }
+        
+        if (session?.user?.role !== "ADMIN") {
+            router.push("/");
+            return;
+        }
+    }, [session?.user?.role, status, router]); // Fix dependency array
+
+    // Show loading state while session is loading
+    if (status === "loading") {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
+
+    // Show nothing while redirecting
+    if (status === "unauthenticated" || session?.user?.role !== "ADMIN") {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800">Access Denied</h1>
+                    <p className="text-gray-600">Redirecting...</p>
+                </div>
+            </div>
+        );
+    }
 
     const handleTabs = () => {
         switch (activeTab) {
@@ -29,6 +67,7 @@ export default function AdminDashboard() {
                 return <Overview />;
         }
     }
+
     const tabs = [
         { id: "overview", label: "Overview", icon: <VscGraph /> },
         { id: "users", label: "Users", icon: <FiUser /> },
@@ -37,49 +76,52 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div className="min-h-screen m-10 ">
+        <div className="min-h-screen m-10">
             <div className="flex justify-between items-center flex-col sm:flex-row">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-playfair' }}>
+                    <h1 className="text-4xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>
                         Admin Dashboard
                     </h1>
                     <p className="text-gray-700 my-2">Welcome back! Here's what's happening with your store.</p>
                 </div>
                 <div>
                     <Link href={"/admin/addProduct"}>
-                        <button className="px-4 py-2 rounded-lg bg-gradient-to-tr from-indigo-700 to-purple-700 text-white font-semibold text-sm flex justify-center items-center gap-2 hover:from-indigo-500 hover:to-purple-500 transition-all duration-300"><FaPlus /> Add Product</button>
+                        <button className="px-4 py-2 rounded-lg bg-gradient-to-tr from-indigo-700 to-purple-700 text-white font-semibold text-sm flex justify-center items-center gap-2 hover:from-indigo-500 hover:to-purple-500 transition-all duration-300">
+                            <FaPlus /> Add Product
+                        </button>
                     </Link>
                 </div>
             </div>
+
             <div className="rounded-xl bg-white p-4 my-4">
                 <h1 className="text-2xl font-bold text-gray-700" style={{ fontFamily: "var(--font-playfair)" }}>Quick Action</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 my-2">
-                    <button className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-300 hover:to-emerald-500 transition-all duration-300 cursor-pointer
-                    ">
-                        <Link href={"/admin/addProduct"} className="flex flex-col justify-center items-center gap-4">
+                    <Link href={"/admin/addProduct"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-300 hover:to-emerald-500 transition-all duration-300 cursor-pointer">
+                        <div className="flex flex-col justify-center items-center gap-4">
                             <FaPlus /> Add Product
-                        </Link>
-                    </button>
-                    <button className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-blue-400 to-blue-600 text-white rounded-xl hover:from-blue-300 hover:to-blue-500 transition-all duration-300 cursor-pointer
-                    ">
-                        <Link href={"/admin/user"} className="flex flex-col justify-center items-center gap-4">
+                        </div>
+                    </Link>
+                    
+                    <Link href={"/admin/user"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-blue-400 to-blue-600 text-white rounded-xl hover:from-blue-300 hover:to-blue-500 transition-all duration-300 cursor-pointer">
+                        <div className="flex flex-col justify-center items-center gap-4">
                             <LuUsers /> Manage Users
-                        </Link>
-                    </button>
-                    <button className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-purple-400 to-purple-600 text-white rounded-xl hover:from-purple-300 hover:to-purple-500 transition-all duration-300 cursor-pointer
-                    ">
-                        <Link href={"/admin/orders"} className="flex flex-col justify-center items-center gap-4">
+                        </div>
+                    </Link>
+                    
+                    <Link href={"/admin/orders"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-purple-400 to-purple-600 text-white rounded-xl hover:from-purple-300 hover:to-purple-500 transition-all duration-300 cursor-pointer">
+                        <div className="flex flex-col justify-center items-center gap-4">
                             <FiShoppingCart /> View Orders
-                        </Link>
-                    </button>
-                    <button className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-orange-400 to-orange-600 text-white rounded-xl hover:from-orange-300 hover:to-orange-500 transition-all duration-300 cursor-pointer
-                    ">
-                        <Link href={"/admin/products"} className="flex flex-col justify-center items-center gap-4">
+                        </div>
+                    </Link>
+                    
+                    <Link href={"/admin/products"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-orange-400 to-orange-600 text-white rounded-xl hover:from-orange-300 hover:to-orange-500 transition-all duration-300 cursor-pointer">
+                        <div className="flex flex-col justify-center items-center gap-4">
                             <FiShoppingBag /> Manage Products
-                        </Link>
-                    </button>
+                        </div>
+                    </Link>
                 </div>
             </div>
+
             <div className="flex flex-wrap w-fit shadow-lg items-center mt-6 bg-white rounded-lg md:rounded-full backdrop-blur-2xl justify-center">
                 {tabs.map((tab) => (
                     <button
