@@ -1,55 +1,102 @@
 "use client"
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { IoIosArrowRoundForward, IoIosEyeOff, IoMdEye } from "react-icons/io";
-import { signIn, getSession, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function Login() {
     const [isClicked, setIsClicked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
     const { data: session, status } = useSession();
     const router = useRouter();
 
-    // Redirect if already logged in
-    useEffect(() => {
-        if (status === "authenticated") {
-            router.push("/");
+    // Use useCallback to prevent recreation on every render
+    const redirectToHome = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            window.location.href = '/';
         }
-    }, [status, router]);
+    }, []);
+
+    // Redirect if already logged in - use a more stable approach
+    useEffect(() => {
+        if (status === "authenticated" && session?.user) {
+            // Use window.location for more reliable navigation
+            redirectToHome();
+        }
+    }, [status, session, redirectToHome]);
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
+        setError("");
         try {
             const result = await signIn('google', {
                 callbackUrl: '/',
-                redirect: false,
+                redirect: true, // Let NextAuth handle the redirect
             });
             
-            if (result?.ok) {
-                router.push('/');
-            } else {
-                console.error('Sign in failed');
-            }
+            // Don't call router.push here if redirect: true
         } catch (error) {
-            console.error('Error during sign in:', error);
-        } finally {
+            console.error('Error during Google sign in:', error);
+            setError('An error occurred during Google sign in');
             setIsLoading(false);
         }
     };
 
     const handleEmailSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Handle email/password sign in here if needed
-        // This would require additional setup for credentials provider
+        setIsLoading(true);
+        setError("");
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+
+        if (!email || !password) {
+            setError("Please fill in all fields");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const result = await signIn('credentials', {
+                email,
+                password,
+                redirect: false,
+            });
+
+            if (result?.ok) {
+                // Use window.location for more reliable redirect
+                window.location.href = '/';
+            } else {
+                setError(result?.error || 'Invalid email or password');
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('An error occurred during login');
+            setIsLoading(false);
+        }
     };
 
+    // Show loading state while session is loading
     if (status === "loading") {
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
+
+    // Don't render if already authenticated (prevents flash)
+    if (status === "authenticated") {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold">Redirecting...</h2>
+                </div>
             </div>
         );
     }
@@ -66,6 +113,12 @@ export default function Login() {
                     <h1 className="text-4xl font-semibold text-gray-800 mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>Welcome Back</h1>
                     <p className="text-gray-600">Sign in to your account to continue shopping</p>
                 </div>
+
+                {error && (
+                    <div className="w-full p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+                        {error}
+                    </div>
+                )}
 
                 <button 
                     onClick={handleGoogleSignIn}
@@ -92,6 +145,7 @@ export default function Login() {
                             placeholder="john@example.com" 
                             className="outline-none bg-white/70 backdrop-blur-sm border border-white/40 px-3 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
                             required
+                            disabled={isLoading}
                         />
                     </div>
                     
@@ -105,11 +159,13 @@ export default function Login() {
                                 placeholder="Enter Your Password" 
                                 className="outline-none bg-transparent flex-1" 
                                 required
+                                disabled={isLoading}
                             />
                             <button 
                                 type="button"
                                 onClick={() => setIsClicked(!isClicked)}
                                 className="text-gray-500 hover:text-gray-700"
+                                disabled={isLoading}
                             >
                                 {isClicked ? <IoIosEyeOff size={20} /> : <IoMdEye size={20} />}
                             </button>
@@ -118,10 +174,11 @@ export default function Login() {
                     
                     <button 
                         type="submit"
-                        className="flex justify-center items-center gap-4 font-semibold rounded-lg px-8 py-3 text-sm bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 group w-full transition-all duration-300"
+                        disabled={isLoading}
+                        className="flex justify-center items-center gap-4 font-semibold rounded-lg px-8 py-3 text-sm bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 group w-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Sign In
-                        <IoIosArrowRoundForward size={24} className="group-hover:translate-x-2 transition-all duration-300" />
+                        {isLoading ? 'Signing In...' : 'Sign In'}
+                        {!isLoading && <IoIosArrowRoundForward size={24} className="group-hover:translate-x-2 transition-all duration-300" />}
                     </button>
                 </form>
 
