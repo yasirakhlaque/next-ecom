@@ -8,3 +8,12 @@ export default function ToastMessage({ heading, info }: ToastMessageProps) {
         </div>
     );
 }
+
+export function LoginToaster(){
+    return(
+        <div className="bg-white/30 backdrop-blur-xl text-left border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm w-full pr-20 fadeIn">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Please Login</h2>
+            <p className="text-gray-800 text-sm">Please Login to Perform this action</p>
+        </div>
+    )
+}
