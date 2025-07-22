@@ -12,8 +12,8 @@ const inter = Inter({ subsets: ["latin"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
 
 export const metadata: Metadata = {
-  title: "Luxe",
-  description: "An Ecommerce Platform, great expereince for great Users",
+  title: "Luxe - Premium E-commerce",
+  description: "Premium products for luxury lifestyle",
 };
 
 export default function RootLayout({
