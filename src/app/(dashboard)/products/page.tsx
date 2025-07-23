@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import { Product } from "@/types/types";
 import ProductCard from "@/app/@ProductCard/page";
+import Loading from "@/app/loading";
 
 // Custom Select Component
 const CustomSelect = ({ value, onChange, options }: {
@@ -125,14 +126,7 @@ export default function ProductsPage() {
     const sortedProducts = getSortedProducts(sortOption);
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
-                    <p className="mt-4 text-lg text-gray-600">Loading products...</p>
-                </div>
-            </div>
-        );
+       return <Loading />
     }
 
     return (

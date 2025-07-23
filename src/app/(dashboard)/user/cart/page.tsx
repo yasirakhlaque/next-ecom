@@ -7,6 +7,8 @@ import { RxCross2 } from "react-icons/rx";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCart } from "@/contexts/CartContext";
 import { CartItemProps } from "@/types/types";
+import { LuArrowRight } from "react-icons/lu";
+import Loading from "@/app/loading";
 
 export default function Cart() {
     const [cartItems, setCartItems] = useState<CartItemProps[]>([]);
@@ -129,11 +131,7 @@ export default function Cart() {
     }
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className={`text-xl ${theme === 'dark' ? 'text-gray-100' : 'text-gray-700'}`}>Loading...</div>
-            </div>
-        );
+       return <Loading />
     }
 
     if (cartItems.length === 0) {
@@ -181,7 +179,7 @@ export default function Cart() {
                             ? 'bg-gray-900/30 border-gray-700/30'
                             : 'bg-white/30 border-white/30'
                             } backdrop-blur-xl border rounded-2xl shadow-2xl shadow-black/10 p-6`}>
-                            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>Order Summary</h2>
+                            <h2 className={`text-xl font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`} style={{ fontFamily: "var(--font-playfair)" }}>Order Summary</h2>
 
                             <div className="space-y-2 mb-4">
                                 <div className={`flex justify-between ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -198,10 +196,15 @@ export default function Cart() {
                                     <span>${calculateTotal().toFixed(2)}</span>
                                 </div>
                             </div>
-
-                            <button className="w-full bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg px-4 py-3 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-300">
-                                Proceed to Checkout
-                            </button>
+                            <Link href={"/user/cart/checkout"}>
+                                <button className="w-full bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg px-4 py-3 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 flex gap-2 justify-center items-center text-sm group">
+                                    Proceed to Checkout<LuArrowRight className="group-hover:translate-x-2 transition-all duration-200" />
+                                </button>
+                            </Link>
+                            <div className="flex justify-center items-center flex-col gap-2 text-gray-400 text-xs">
+                                <p><span className="text-5xl pr-2 -translate-y-1 text-green-500 shadow-2xl shadow-green-200">.</span>Secure Payment</p>
+                                <p className="text-center">Your payment information is encrypted and secure</p>
+                            </div>
                         </div>
                     </div>
                 </div>

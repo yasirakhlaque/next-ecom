@@ -1,5 +1,6 @@
 "use client"
 import ReviewCard from "@/app/@ReviewCard/page";
+import Loading from "@/app/loading";
 import ToastMessage from "@/components/ToastMessage";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -218,12 +219,7 @@ export default function DetailedProductCard({ params }: { params: Promise<{ id: 
 
     // Loading state
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-500"></div>
-                <p className="mt-4 text-gray-600 font-medium">Loading product...</p>
-            </div>
-        );
+       return <Loading />
     }
 
     // Not found state
