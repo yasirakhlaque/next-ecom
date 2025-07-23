@@ -1,9 +1,11 @@
 "use client"
 import { OrderData, OrdersDummyData } from "@/lib/dummyData";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiEye, FiPackage, FiTruck } from "react-icons/fi";
 import { IoCheckmarkCircle, IoCloseCircle, IoTimeOutline } from "react-icons/io5";
+import Loading from "../loading";
 
 interface OrderCardProps {
     order: OrderData;
@@ -118,7 +120,51 @@ function OrderCard({ order }: OrderCardProps) {
 }
 
 export default function UserOrders() {
-    const [orders] = useState<OrderData[]>(OrdersDummyData);
+    const [orders, setOrders] = useState<OrderData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            if (!session?.user?.email) {
+                setLoading(false);
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const response = await fetch(`/api/user/orders`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Orders data received:', data);
+
+                    // Handle both formats
+                    if (data.orders) {
+                        setOrders(data.orders);
+                    } else if (Array.isArray(data)) {
+                        setOrders(data);
+                    } else {
+                        console.error('Unexpected data format:', data);
+                        setOrders([]);
+                    }
+                } else {
+                    console.error('Failed to fetch orders:', response.status);
+                    setOrders([]);
+                }
+            } catch (error) {
+                console.error("Failed To Fetch Orders", error);
+                setOrders([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchOrders();
+    }, [session?.user?.email]);
+
+    if (loading) {
+        return <Loading />
+    }
 
     return (
         <div className="space-y-6">
