@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { FiTrash2 } from "react-icons/fi";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { WishlistItem } from "@/types/types";
+import Loading from "@/app/loading";
 
 export default function UserWishlist() {
     const { data: session } = useSession();
@@ -60,11 +61,7 @@ export default function UserWishlist() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen m-10">
-                <div className="text-xl">Loading...</div>
-            </div>
-        )
+       return <Loading />
     }
 
     if (error) {
