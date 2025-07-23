@@ -119,3 +119,11 @@ export interface Review {
     likes?: number;
     dislikes?: number;
 }
+
+export interface userData{
+    id:string;
+    name:string;
+    email:string;
+    role:"ADMIN" | "CUSTOMER"
+    address:string;
+}
