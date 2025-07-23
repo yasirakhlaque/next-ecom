@@ -1,6 +1,8 @@
 "use client"
+import Loading from "@/app/loading";
 import { OrderData, OrdersDummyData } from "@/lib/dummyData";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { FiEye, FiPackage, FiTruck } from "react-icons/fi";
 import { IoCheckmarkCircle, IoCloseCircle, IoTimeOutline } from "react-icons/io5";
 
@@ -10,7 +12,33 @@ interface OrderCardProps {
 
 
 export default function Orders() {
-    const [orders] = useState<OrderData[]>(OrdersDummyData);
+    const [orders, setOrders] = useState<OrderData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true); 
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch(`/api/user/orders`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Orders data:', data); 
+                    setOrders(data.orders || data);
+                }
+            } catch (error) {
+                console.log("Failed To Fetch Orders", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchOrders();
+    }, [session?.user?.email]);
+
+    if (loading) {
+        return <Loading/>
+    }
 
     return (
         <div className="space-y-6 px-10 my-10">
