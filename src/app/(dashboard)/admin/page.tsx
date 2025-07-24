@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"; // Import useRouter instead of redirect
+import { useRouter } from "next/navigation"; 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaPlus, FaRegEye } from "react-icons/fa";
@@ -11,37 +11,30 @@ import { FiShoppingBag, FiShoppingCart, FiUser } from "react-icons/fi";
 import { VscGraph } from "react-icons/vsc";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { LuUsers } from "react-icons/lu";
+import Loading from "@/app/loading";
 
 export default function AdminDashboard() {
-    const { data: session, status } = useSession(); // Get status as well
-    const router = useRouter(); // Use useRouter for client-side navigation
+    const { data: session, status } = useSession(); 
+    const router = useRouter(); 
     const [activeTab, setActiveTab] = useState("overview");
 
     useEffect(() => {
-        // Only run the check when session is loaded
-        if (status === "loading") return; // Still loading
-        
+        if (status === "loading") return; 
+
         if (status === "unauthenticated") {
             router.push("/login");
             return;
         }
-        
+
         if (session?.user?.role !== "ADMIN") {
             router.push("/");
             return;
         }
-    }, [session?.user?.role, status, router]); // Fix dependency array
-
-    // Show loading state while session is loading
+    }, [session?.user?.role, status, router]); 
     if (status === "loading") {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-            </div>
-        );
+        return <Loading />
     }
 
-    // Show nothing while redirecting
     if (status === "unauthenticated" || session?.user?.role !== "ADMIN") {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -101,19 +94,19 @@ export default function AdminDashboard() {
                             <FaPlus /> Add Product
                         </div>
                     </Link>
-                    
+
                     <Link href={"/admin/user"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-blue-400 to-blue-600 text-white rounded-xl hover:from-blue-300 hover:to-blue-500 transition-all duration-300 cursor-pointer">
                         <div className="flex flex-col justify-center items-center gap-4">
                             <LuUsers /> Manage Users
                         </div>
                     </Link>
-                    
-                    <Link href={"/admin/orders"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-purple-400 to-purple-600 text-white rounded-xl hover:from-purple-300 hover:to-purple-500 transition-all duration-300 cursor-pointer">
+
+                    <Link href={"/admin/order"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-purple-400 to-purple-600 text-white rounded-xl hover:from-purple-300 hover:to-purple-500 transition-all duration-300 cursor-pointer">
                         <div className="flex flex-col justify-center items-center gap-4">
                             <FiShoppingCart /> View Orders
                         </div>
                     </Link>
-                    
+
                     <Link href={"/admin/products"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-orange-400 to-orange-600 text-white rounded-xl hover:from-orange-300 hover:to-orange-500 transition-all duration-300 cursor-pointer">
                         <div className="flex flex-col justify-center items-center gap-4">
                             <FiShoppingBag /> Manage Products
@@ -144,32 +137,65 @@ export default function AdminDashboard() {
 }
 
 function Overview() {
-    const dummyOrders = [
-        { orderdBy: "Jhon Doe", email: "jhondoe@example.com", itemPrice: 299, status: "Completed", date: "2024-01-13" },
-        { orderdBy: "Jane Smith", email: "jane@example.com", itemPrice: 199, status: "Processing", date: "2024-01-13" },
-        { orderdBy: "Mike Wheeler", email: "wheelermike@example.com", itemPrice: 79, status: "Shipped", date: "2024-01-13" },
-        { orderdBy: "Steve Harington", email: "stevenhar@example.com", itemPrice: 129, status: "Pending", date: "2024-01-13" },
-    ]
+    const [dashboardData, setDashboardData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const dummyTopProducts = [
-        { rank: "1", itemName: "Luxry Bag", itemImage: "https://i.pinimg.com/474x/d0/e1/2b/d0e12bf8758a3e14202010b2cad61d6c.jpg", totalSales: 234, totalRevenue: "45900" },
-        { rank: "2", itemName: "Vintage Jacket", itemImage: "https://i.pinimg.com/736x/48/b8/10/48b8101bf681dca624173b045c67047d.jpg", totalSales: 189, totalRevenue: "36800" },
-        { rank: "3", itemName: "Samrt Watch", itemImage: "https://i.pinimg.com/736x/8a/13/11/8a1311642bc58a1347829bbe35e92004.jpg", totalSales: 150, totalRevenue: "34900" },
-        { rank: "4", itemName: "Designer Sunglasses", itemImage: "https://i.pinimg.com/474x/5b/d2/c9/5bd2c9abc116d0a5f438f82cb2b662fd.jpg", totalSales: 145, totalRevenue: "24900" },
-    ]
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const response = await fetch('/api/admin/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    setDashboardData(data);
+                } else {
+                    setError('Failed to fetch dashboard data');
+                }
+            } catch (err) {
+                setError('Network error occurred');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
 
     const getStatusStyles = (status: string) => {
         switch (status) {
-            case "Completed":
+            case "DELIVERED":
                 return "bg-green-200 text-green-500"
-            case "Processing":
+            case "ACCEPTED":
                 return "bg-yellow-200 text-yellow-500"
-            case "Shipped":
+            case "SHIPPED":
                 return "bg-blue-200 text-blue-500"
+            case "PENDING":
+                return "bg-orange-200 text-orange-500"
+            case "CANCELLED":
+                return "bg-red-200 text-red-500"
             default:
                 return "bg-gray-300 text-gray-500"
         }
     }
+
+    if (loading) {
+        return (
+            <div className="m-10 flex justify-center items-center">
+                <div className="text-xl">Loading dashboard data...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="m-10">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="m-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -178,32 +204,32 @@ function Overview() {
                         Total Revenue
                         <RiMoneyDollarCircleLine className="text-green-500 bg-green-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">$490,12.90</h4>
+                    <h4 className="font-bold text-2xl sm:text-3xl">${dashboardData?.totalRevenue?.toFixed(2) || '0.00'}</h4>
                 </div>
                 <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2">
                     <h1 className="flex justify-between items-center font-semibold">
                         Total Orders
                         <FiShoppingCart className="text-blue-500 bg-blue-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">249</h4>
+                    <h4 className="font-bold text-2xl sm:text-3xl">{dashboardData?.totalOrders || 0}</h4>
                 </div>
                 <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2">
                     <h1 className="flex justify-between items-center font-semibold">
                         Total Products
                         <FiShoppingBag className="text-purple-500 bg-purple-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">1202</h4>
+                    <h4 className="font-bold text-2xl sm:text-3xl">{dashboardData?.totalProducts || 0}</h4>
                 </div>
                 <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2">
                     <h1 className="flex justify-between items-center font-semibold">
-                        Total Revenue
+                        Total Customers
                         <LuUsers className="text-orange-500 bg-orange-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">65</h4>
+                    <h4 className="font-bold text-2xl sm:text-3xl">{dashboardData?.totalCustomers || 0}</h4>
                 </div>
             </div>
             <div className="my-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Recent Ordes */}
+                {/* Recent Orders */}
                 <div className="px-10 py-7 bg-white rounded-xl">
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Recent Orders</h1>
@@ -214,11 +240,11 @@ function Overview() {
                         </Link>
                     </div>
                     <div>
-                        {dummyOrders.map((order, index) => (
+                        {dashboardData?.recentOrders?.map((order: any, index: number) => (
                             <div className="flex justify-between items-center text-xs my-4" key={index}>
                                 <div className="flex flex-col gap-2">
-                                    <h2 className="font-semibold ">{order.orderdBy}</h2>
-                                    <p className=" text-gray-500">{order.email}</p>
+                                    <h2 className="font-semibold">{order.orderedBy}</h2>
+                                    <p className="text-gray-500">{order.email}</p>
                                 </div>
                                 <div className="flex items-end flex-col gap-2">
                                     <h1 className="text-sm font-bold text-blue-800">${order.itemPrice}</h1>
@@ -226,7 +252,7 @@ function Overview() {
                                         <h3 className={`${getStatusStyles(order.status)} rounded-full text-xs font-semibold px-2 py-1`}>
                                             {order.status}
                                         </h3>
-                                        <p className=" text-gray-400">{order.date}</p>
+                                        <p className="text-gray-400">{order.date}</p>
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +271,7 @@ function Overview() {
                         </Link>
                     </div>
                     <div>
-                        {dummyTopProducts.map(item => (
+                        {dashboardData?.topProducts?.map((item: any) => (
                             <div key={item.rank} className="flex items-center justify-between gap-6 my-5 bg-white/50 rounded-lg p-2 text-xs">
                                 <div className="flex gap-4">
                                     <h1 className="rounded-xl flex justify-center items-center font-semibold text-white bg-gradient-to-tl from-purple-600 to-blue-600 p-2">#{item.rank}</h1>
@@ -268,8 +294,7 @@ function Overview() {
                         ))}
                     </div>
                 </div>
-                <div></div>
             </div>
-        </div >
+        </div>
     )
 }
