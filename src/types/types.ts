@@ -126,4 +126,5 @@ export interface userData{
     email:string;
     role:"ADMIN" | "CUSTOMER"
     address:string;
+    image:string;
 }

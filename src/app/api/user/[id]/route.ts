@@ -32,13 +32,18 @@ export async function GET(
     }
 }
 
-export async function PUT(req: NextRequest) {
-    const body = await req.json();
-    const { name, image } = body;
-
+// Fix the PUT route to use params properly
+export async function PUT(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
+        const { id } = await params;
+        const body = await req.json();
+        const { name, image } = body;
+
         const user = await db.user.update({
-            where: { id: body.id },
+            where: { id: id }, // Use id from params, not body
             data: { name, image }
         });
 

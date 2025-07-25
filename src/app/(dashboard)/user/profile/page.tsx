@@ -9,31 +9,40 @@ import Loading from "@/app/loading";
 export default function ProfilePage() {
     const { data: session } = useSession();
     const [userData, setUserData] = useState<userData | null>(null);
-    const [loading, setLoading] = useState<boolean>();
+    const [loading, setLoading] = useState<boolean>(true);
     const [editForm, setEditForm] = useState<boolean>(false);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch(`/api/user/${session?.user.id}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserData(data);
-                }
-            } catch (err) {
-                console.log("Failed To Fetch User", err);
-            } finally {
-                setLoading(false)
+    const fetchUser = async () => {
+        if (!session?.user?.id) return;
+
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/user/${session.user.id}`);
+            if (response.ok) {
+                const data = await response.json();
+                setUserData(data);
             }
+        } catch (err) {
+            console.log("Failed To Fetch User", err);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    useEffect(() => {
         fetchUser();
-    }, [session?.user.id])
+    }, [session?.user?.id]);
+
+    const handleProfileUpdate = () => {
+        fetchUser();
+    };
 
     if (loading) {
         return <Loading />
     }
 
+    const displayName = userData?.name || session?.user?.name;
+    const displayImage = userData?.image || session?.user?.image;
     const userAddress = userData?.address || "123 Main Street, New York, NY 10001, United States";
 
     // Parse address for better display
@@ -76,26 +85,49 @@ export default function ProfilePage() {
                 <h1 className="text-3xl font-semibold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>Profile Information</h1>
                 <div className="flex justify-center gap-4 p-6 flex-col md:flex-row">
                     <div className="flex flex-col items-center justify-center gap-4 bg-white/30 backdrop-blur-xl rounded-lg shadow-lg p-6 border-1 border-white w-full md:w-1/3 h-60">
-                        <div className="h-30 w-30">
-                            <img src={session?.user.image || "https://i.pinimg.com/736x/48/b8/10/48b8101bf681dca624173b045c67047d.jpg"} alt="user image" className="h-[100%] w-[100%] object-cover rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600" />
+                        <div className="h-24 w-24"> {/* Fixed size */}
+                            <div className="h-full w-full rounded-full overflow-hidden bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center p-1">
+                                <img
+                                    src={displayImage || "https://i.pinimg.com/736x/48/b8/10/48b8101bf681dca624173b045c67047d.jpg"}
+                                    alt="user image"
+                                    className="h-full w-full object-cover rounded-full"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://i.pinimg.com/736x/48/b8/10/48b8101bf681dca624173b045c67047d.jpg";
+                                    }}
+                                />
+                            </div>
                         </div>
-                        <h1 className="text-xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>{session?.user.name}</h1>
+                        <h1 className="text-xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            {displayName}
+                        </h1>
                     </div>
+
+                    {/* Update form inputs to use userData */}
                     <div className="flex flex-col w-full md:w-2/3 justify-center items-center gap-4">
                         <div className="bg-white/30 border-1 border-white backdrop-blur-xl rounded-lg shadow-lg p-6 flex flex-col gap-4 w-full">
                             <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Personal Information</h1>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="flex flex-col gap-2">
                                     <label htmlFor="name" className="text-sm font-semibold">Name</label>
-                                    <input type="text" name="name" id="name" value={session?.user.name || ""} disabled className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg" />
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        id="name"
+                                        value={displayName || ""}
+                                        disabled
+                                        className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg"
+                                    />
                                 </div>
                                 <div className="flex flex-col gap-2 md:col-span-2">
                                     <label htmlFor="email" className="text-sm font-semibold">Email</label>
-                                    <input type="email" name="email" id="email" value={session?.user.email || ""} disabled className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg" />
-                                </div>
-                                <div className="flex flex-col gap-2 md:col-span-2">
-                                    <label htmlFor="phone" className="text-sm font-semibold">Phone</label>
-                                    <input type="text" name="phone" id="phone" value={"N/A"} disabled className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg" />
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        value={userData?.email || session?.user?.email || ""}
+                                        disabled
+                                        className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg"
+                                    />
                                 </div>
                             </div>
                             <button className="flex justify-center items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 text-sm text-white hover:from-indigo-700 hover:to-purple-700" onClick={() => setEditForm(true)}>
@@ -125,21 +157,26 @@ export default function ProfilePage() {
                 </div>
             </div>
             <div>
-                {
-                    editForm && (
-                        <EditProfileForm userData={userData} setEditForm={setEditForm} />
-                    )}
+                {editForm && (
+                    <EditProfileForm
+                        userData={userData}
+                        setEditForm={setEditForm}
+                        onUpdate={handleProfileUpdate} // Pass update callback
+                    />
+                )}
             </div>
         </>
     )
 }
 
-function EditProfileForm({ userData, setEditForm }: { userData: userData | null; setEditForm: (value: boolean) => void }) {
+function EditProfileForm({ userData, setEditForm, onUpdate }: {
+    userData: userData | null; setEditForm: (value: boolean) => void; onUpdate: () => void;
+}) {
     const { data: session, update: updateSession } = useSession();
     const [submitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    
+
     // Add controlled state for form data
     const [formData, setFormData] = useState({
         name: userData?.name || session?.user?.name || '',
@@ -170,16 +207,16 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    id: session?.user?.id,
                     name: formData.name,
                     image: formData.image
-                }),
+                }), // Remove id from body since it's in the URL
             });
 
             if (response.ok) {
                 const updatedUser = await response.json();
                 setSuccessMessage("Profile updated successfully! 🎉");
-                
+
+                // Update session
                 await updateSession({
                     ...session,
                     user: {
@@ -191,7 +228,7 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
 
                 setTimeout(() => {
                     setEditForm(false);
-                    window.location.reload(); 
+                    onUpdate(); // Call the update callback instead of reloading
                 }, 2000);
             } else {
                 const errorData = await response.json();
@@ -205,13 +242,14 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
         }
     };
 
+
     return (
         <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold text-gray-800">Edit Profile</h3>
-                    <button 
-                        onClick={() => setEditForm(false)} 
+                    <button
+                        onClick={() => setEditForm(false)}
                         className="text-gray-500 hover:text-gray-700 text-xl"
                         type="button"
                     >
@@ -237,39 +275,39 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex flex-col gap-2">
                         <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
-                        <input 
-                            type="text" 
-                            name="name" 
-                            id="name" 
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
                             value={formData.name}
                             onChange={handleInputChange}
-                            className="bg-white px-3 py-4 rounded-lg outline-none border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" 
+                            className="bg-white px-3 py-4 rounded-lg outline-none border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             required
                         />
                     </div>
-                    
+
                     <div className="flex flex-col gap-2">
                         <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-                        <input 
-                            type="email" 
-                            name="email" 
-                            id="email" 
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
                             value={formData.email}
-                            className="bg-gray-100 px-3 py-4 rounded-lg outline-none border border-gray-300" 
-                            disabled 
+                            className="bg-gray-100 px-3 py-4 rounded-lg outline-none border border-gray-300"
+                            disabled
                         />
                         <p className="text-xs text-gray-500">Email cannot be changed</p>
                     </div>
-                    
+
                     <div className="flex flex-col gap-2">
                         <label htmlFor="image" className="text-sm font-medium text-gray-700">Profile Image URL</label>
-                        <input 
-                            type="url" 
-                            name="image" 
-                            id="image" 
+                        <input
+                            type="url"
+                            name="image"
+                            id="image"
                             value={formData.image}
                             onChange={handleInputChange}
-                            className="bg-white px-3 py-4 rounded-lg outline-none border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" 
+                            className="bg-white px-3 py-4 rounded-lg outline-none border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                             placeholder="https://example.com/your-image.jpg"
                         />
                     </div>
@@ -279,9 +317,9 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">Preview:</label>
                             <div className="flex justify-center">
-                                <img 
-                                    src={formData.image} 
-                                    alt="Profile preview" 
+                                <img
+                                    src={formData.image}
+                                    alt="Profile preview"
                                     className="w-20 h-20 object-cover rounded-full border-2 border-gray-200"
                                     onError={(e) => {
                                         e.currentTarget.src = "https://i.pinimg.com/736x/48/b8/10/48b8101bf681dca624173b045c67047d.jpg";
@@ -290,9 +328,9 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
                             </div>
                         </div>
                     )}
-                    
+
                     <div className="flex gap-3 justify-end pt-4">
-                        <button 
+                        <button
                             type="button"
                             onClick={() => setEditForm(false)}
                             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
@@ -300,7 +338,7 @@ function EditProfileForm({ userData, setEditForm }: { userData: userData | null;
                         >
                             Cancel
                         </button>
-                        <button 
+                        <button
                             type="submit"
                             className="px-6 py-2 text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 rounded-lg disabled:opacity-50"
                             disabled={submitting}
