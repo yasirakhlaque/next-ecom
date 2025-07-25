@@ -6,14 +6,38 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const { id } = await params;
         const product = await db.product.findUnique({
             where: { id },
-            include: { tags: true },
+            include: { 
+                tags: true,
+                reviews: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true,
+                                image: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
+            },
         });
 
         if (!product) {
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
 
-        return NextResponse.json(product, { status: 200 });
+        const transformedProduct = {
+            ...product,
+            reviews: product.reviews.map(review => ({
+                ...review,
+                userName: review.user?.name || 'Anonymous',
+                userImage: review.user?.image || '/api/placeholder/50/50'
+            }))
+        };
+
+        return NextResponse.json(transformedProduct, { status: 200 });
     } catch (error) {
         console.error("Error in GET /api/product/[id]:", error);
         return NextResponse.json(
