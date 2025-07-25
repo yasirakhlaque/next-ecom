@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             where: { id },
             include: { tags: true },
         });
-        
+
         if (!product) {
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
                 discount
             }
         });
-        
+
         if (!product) {
             return NextResponse.json({ error: "Product update failed" }, { status: 500 });
         }
@@ -61,20 +61,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
-        const product = await db.product.delete({
-            where: { id },
+
+        await db.$transaction(async (tx) => {
+            await tx.cart.deleteMany({ where: { productId: id } });
+            await tx.orderDetails.deleteMany({ where: { productId: id } });
+            await tx.review.deleteMany({ where: { productId: id } });
+            await tx.wishlist.deleteMany({ where: { productId: id } });
+            await tx.product.delete({ where: { id } });
         });
-        
-        if (!product) {
-            return NextResponse.json({ error: "Product deletion failed" }, { status: 500 });
-        }
-        
+
         return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error in DELETE /api/product/[id]:", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

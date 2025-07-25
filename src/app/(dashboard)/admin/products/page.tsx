@@ -11,6 +11,23 @@ export default function Products() {
     const [selectedCategory, setSelectedCategory] = useState("ALL");
     const [selectOption, setSelectOption] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+    const handleDelete = async (id: string)=>{
+        const response = await fetch(`/api/product/${id}`,{
+            method:'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.error || "Failed to delete product");
+            return;
+        }
+        setProducts(products.filter(product => product.id !== id));
+    }
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -31,6 +48,17 @@ export default function Products() {
         }
         fetchProducts();
     }, [])
+
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setOpenMenuId(null);
+        };
+
+        if (openMenuId) {
+            document.addEventListener('click', handleClickOutside);
+            return () => document.removeEventListener('click', handleClickOutside);
+        }
+    }, [openMenuId]);
 
     if (loading) {
         return (
@@ -58,7 +86,7 @@ export default function Products() {
                 <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: "var(--font-playfair)" }}>Product Management</h1>
                 <p className="text-gray-400 my-2">Manage your product catalog and inventory</p>
             </div>
-            
+
             <div className="bg-white rounded-xl flex justify-center items-center px-6 py-10 relative">
                 <input
                     type="search"
@@ -121,7 +149,7 @@ export default function Products() {
                         </thead>
                         <tbody>
                             {filteredProducts.map((product) => {
-                                const discountedPrice = product.discount 
+                                const discountedPrice = product.discount
                                     ? product.price - (product.price * product.discount / 100)
                                     : product.price;
 
@@ -129,9 +157,9 @@ export default function Products() {
                                     <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50">
                                         <td className="py-4 px-4">
                                             <div className="flex items-center gap-3">
-                                                <img 
-                                                    src={product.image} 
-                                                    alt={product.name} 
+                                                <img
+                                                    src={product.image}
+                                                    alt={product.name}
                                                     className="w-12 h-12 rounded-lg object-cover"
                                                 />
                                                 <div>
@@ -160,13 +188,12 @@ export default function Products() {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4 text-center">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                product.stock > 10 
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : product.stock > 0
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.stock > 10
+                                                ? 'bg-green-100 text-green-700'
+                                                : product.stock > 0
                                                     ? 'bg-yellow-100 text-yellow-700'
                                                     : 'bg-red-100 text-red-700'
-                                            }`}>
+                                                }`}>
                                                 {product.stock} in stock
                                             </span>
                                         </td>
@@ -183,9 +210,42 @@ export default function Products() {
                                         </td>
                                         <td className="py-4 px-4 text-center">
                                             <div className="relative">
-                                                <button className="text-gray-400 hover:text-gray-600 p-1">
+                                                <button
+                                                    className="text-gray-400 hover:text-gray-600 p-1"
+                                                    onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
+                                                >
                                                     <BsThreeDotsVertical />
                                                 </button>
+                                                {openMenuId === product.id && (
+                                                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                                        <ul className="py-1">
+                                                            <li>
+                                                                <button
+                                                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 w-full text-left"
+                                                                    onClick={() => {
+                                                                        // Handle edit action
+                                                                        console.log('Edit product:', product.id);
+                                                                        setOpenMenuId(null);
+                                                                    }}
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button
+                                                                    className="block px-4 py-2 text-sm text-red-700 hover:bg-red-200 w-full text-left"
+                                                                    onClick={() => {
+                                                                        handleDelete(product.id);
+                                                                        console.log('Delete product:', product.id);
+                                                                        setOpenMenuId(null);
+                                                                    }}
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
