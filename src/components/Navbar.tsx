@@ -66,7 +66,16 @@ export default function Navbar() {
         }
     }, [session?.user?.id, status]);
 
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setSelectedOption(false);
+        };
 
+        if (selectedOption) {
+            document.addEventListener('click', handleClickOutside);
+            return () => document.removeEventListener('click', handleClickOutside);
+        }
+    }, [selectedOption]);
 
     return (
         <>
