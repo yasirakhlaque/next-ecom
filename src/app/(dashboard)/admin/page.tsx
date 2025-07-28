@@ -233,7 +233,7 @@ function Overview() {
                 <div className="px-10 py-7 bg-white rounded-xl">
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Recent Orders</h1>
-                        <Link href={"/admin/orders"}>
+                        <Link href={"/admin/order"}>
                             <button className="flex justify-center items-center gap-2 rounded-full border-1 border-white bg-white/10 py-2 px-4 text-gray-700 text-sm font-semibold">
                                 <FaRegEye /> View All
                             </button>
