@@ -10,12 +10,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String      @id @default(cuid())
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
   name        String?     
   email       String      @unique
   password    String?     // Now optional for OAuth
@@ -24,12 +24,13 @@ model User {
   role        Role        @default(CUSTOMER)
   address     String?
 
-  wishlist    Wishlist[]
-  cart        Cart[]
-  orders      Order[]
-  reviews     Review[]
-  comments    Comment[]
-  orderDetails OrderDetails[]
+  // Remove the ID arrays and field/reference specifications for one-to-many relations
+  wishlist       Wishlist[]
+  cart           Cart[]
+  orders         Order[]
+  reviews        Review[]
+  comments       Comment[]
+  orderDetails   OrderDetails[]
 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -41,100 +42,110 @@ enum Role {
 }
 
 model Product {
-  id          String     @id @default(cuid())
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   image       String
   brand       String
   price       Float
   discount    Int?
-  description String     @db.Text
-  size        String     // Changed from String[] to String
+  description String
+  size        String
   category    String
   stock       Int
   rating      Float?
-  reviews     Review[]
-  comments    Comment[]
-  wishlist    Wishlist[]
-  cart        Cart[]
-  orderDetails OrderDetails[]
-  adminId     String?
   
-  // Add relations for Tag and Category
-  tags        Tag[]      @relation("ProductTags")
-  categories  Category[] @relation("ProductCategories")
+  // Remove the ID arrays and field/reference specifications for one-to-many relations
+  reviews        Review[]
+  comments       Comment[]
+  wishlist       Wishlist[]
+  cart           Cart[]
+  orderDetails   OrderDetails[]
+  
+  adminId     String?    @db.ObjectId
+  
+  // Keep many-to-many relations with proper syntax
+  tagIds         String[] @db.ObjectId
+  tags           Tag[] @relation("ProductTags", fields: [tagIds], references: [id])
+  
+  categoryIds    String[] @db.ObjectId
+  categories     Category[] @relation("ProductCategories", fields: [categoryIds], references: [id])
   
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
 model Tag {
-  id      String     @id @default(cuid())
-  name    String     @unique
-  products Product[] @relation("ProductTags")
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  name       String     @unique
+  productIds String[]   @db.ObjectId
+  products   Product[]  @relation("ProductTags", fields: [productIds], references: [id])
 }
 
 model Category {
-  id      String     @id @default(cuid())
-  title   String
-  type    String
-  products Product[] @relation("ProductCategories")
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  type       String
+  productIds String[]   @db.ObjectId
+  products   Product[]  @relation("ProductCategories", fields: [productIds], references: [id])
 }
 
 model Review {
-  id         String   @id @default(cuid())
-  rating     Int
-  text       String
-  userId     String
-  productId  String
-  user       User     @relation(fields: [userId], references: [id])
-  product    Product  @relation(fields: [productId], references: [id])
-  createdAt  DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int
+  text      String
+  userId    String   @db.ObjectId
+  productId String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Comment {
-  id         String   @id @default(cuid())
-  text       String   @db.Text
-  likes      Int?     @default(0)
-  dislikes   Int?     @default(0)
-  userId     String
-  productId  String
-  user       User     @relation(fields: [userId], references: [id])
-  product    Product  @relation(fields: [productId], references: [id])
-  createdAt  DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  likes     Int?     @default(0)
+  dislikes  Int?     @default(0)
+  userId    String   @db.ObjectId
+  productId String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Wishlist {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  productId String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
+  
   @@unique([userId, productId]) // Prevent duplicates
 }
 
 model Cart {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  productId String   @db.ObjectId
   quantity  Int      @default(1)
   size      String?
   user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
   @@unique([userId, productId, size]) // Prevent duplicates for same product and size
 }
 
 model Order {
-  id          String     @id @default(cuid())
-  userId      String
-  user        User       @relation(fields: [userId], references: [id])
-  status      Status     @default(PENDING)
-  totalAmount Int
-  address     String
-  orderDetails OrderDetails[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String     @db.ObjectId
+  user           User       @relation(fields: [userId], references: [id])
+  status         Status     @default(PENDING)
+  totalAmount    Int
+  address        String
+  orderDetails   OrderDetails[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 enum Status {
@@ -146,10 +157,10 @@ enum Status {
 }
 
 model OrderDetails {
-  id              String   @id @default(cuid())
-  orderId         String
-  productId       String
-  userId          String
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String   @db.ObjectId
+  productId       String   @db.ObjectId
+  userId          String   @db.ObjectId
   quantity        Int
   priceAtPurchase Int
   size            String?
