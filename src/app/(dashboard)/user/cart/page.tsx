@@ -112,6 +112,16 @@ export default function Cart() {
         }, 0);
     };
 
+    const hasOutOfStockItems = () => {
+        return cartItems.some(item => item.product.stock <= 0);
+    };
+
+    const hasStockIssues = () => {
+        return cartItems.some(item => 
+            item.product.stock <= 0 || item.quantity > item.product.stock
+        );
+    };
+
     if (!session || !session.user) {
         return (
             <div className="h-screen flex items-center justify-center">
@@ -197,10 +207,30 @@ export default function Cart() {
                                 </div>
                             </div>
                             <Link href={"/user/cart/checkout"}>
-                                <button className="w-full bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg px-4 py-3 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 flex gap-2 justify-center items-center text-sm group">
-                                    Proceed to Checkout<LuArrowRight className="group-hover:translate-x-2 transition-all duration-200" />
+                                <button 
+                                    disabled={hasStockIssues()}
+                                    className={`w-full rounded-lg px-4 py-3 font-semibold transition-all duration-300 flex gap-2 justify-center items-center text-sm group ${
+                                        hasStockIssues() 
+                                            ? 'bg-gray-400 cursor-not-allowed text-gray-200' 
+                                            : 'bg-gradient-to-tr from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600'
+                                    }`}
+                                >
+                                    {hasStockIssues() ? 'Cannot Proceed - Stock Issues' : 'Proceed to Checkout'}
+                                    {!hasStockIssues() && <LuArrowRight className="group-hover:translate-x-2 transition-all duration-200" />}
                                 </button>
                             </Link>
+
+                            {/* Add warning message when there are stock issues */}
+                            {hasStockIssues() && (
+                                <div className="mt-3 p-3 bg-red-100 border border-red-300 rounded-lg">
+                                    <p className="text-red-700 text-sm font-medium">
+                                        ⚠️ Cannot proceed to checkout
+                                    </p>
+                                    <p className="text-red-600 text-xs mt-1">
+                                        Please remove out-of-stock items or adjust quantities before proceeding.
+                                    </p>
+                                </div>
+                            )}
                             <div className="flex justify-center items-center flex-col gap-2 text-gray-400 text-xs">
                                 <p><span className="text-5xl pr-2 -translate-y-1 text-green-500 shadow-2xl shadow-green-200">.</span>Secure Payment</p>
                                 <p className="text-center">Your payment information is encrypted and secure</p>
