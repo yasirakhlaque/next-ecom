@@ -16,11 +16,11 @@ const CustomSelect = ({ value, onChange, options }: {
     const selectedOption = options.find(option => option.value === value);
 
     return (
-        <div className="relative w-full max-w-xs">
+        <div className="relative w-full">
             {/* Select Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-50 p-3 rounded-lg bg-white/30 backdrop-blur-sm border border-white/40 
+                className="w-full p-3 rounded-lg bg-white/30 backdrop-blur-sm border border-white/40 
                          flex items-center justify-between text-gray-700 font-medium
                          hover:bg-white/40 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
             >
