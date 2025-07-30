@@ -397,7 +397,7 @@ export default function Checkout() {
                     </div>
                 </form>
             </div>
-            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-50">
+            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
                 {successPage && <SuccessPage orderId={orderId} />}
             </div>
         </>
