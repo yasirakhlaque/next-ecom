@@ -23,3 +23,22 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params;
+        const address = await db.user.findUnique({
+            where: { id: id },
+            select: { address: true }
+        });
+        
+        if (!address) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+        
+        return NextResponse.json(address.address, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching user address:", error);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}
