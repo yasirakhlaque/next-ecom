@@ -18,7 +18,7 @@ export default function SuccessPage({ orderId }: { orderId: string | null }) {
             <div className="success">
                 <TbRosetteDiscountCheckFilled size={50}/>
             </div>
-            <h1 className="text-2xl font-bold fadeIn">Order #{orderId} placed successfully!</h1>
+            <h1 className="text-sm md:text-2xl font-bold fadeIn text-center">Order #{orderId} placed successfully!</h1>
         </div>
     )
 }
