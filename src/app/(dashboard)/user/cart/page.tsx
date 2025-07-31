@@ -262,7 +262,7 @@ function CartCard({
         <div className={`${theme === 'dark'
             ? 'bg-gray-900/30 border-gray-700/30'
             : 'bg-white/20 border-white/30'
-            } backdrop-blur-xl border rounded-2xl shadow-2xl shadow-black/10 p-6 flex items-center gap-4`}>
+            } backdrop-blur-xl border rounded-2xl shadow-2xl shadow-black/10 p-6 flex md:flex-row flex-col items-center gap-4 relative`}>
 
             <div className="h-32 w-32 overflow-hidden flex-shrink-0">
                 <img src={prod.product.image} alt={prod.product.name} className="h-full w-full object-cover rounded-lg" />
@@ -270,7 +270,7 @@ function CartCard({
 
             <div className="flex flex-col justify-between w-full">
                 <div className="flex justify-between items-start">
-                    <div className="flex-1">
+                    <div className="flex-1 md:text-left text-center">
                         <h2 className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>{prod.product.name}</h2>
                         <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{prod.product.description}</p>
                         <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>Category: {prod.product.category}</p>
@@ -287,14 +287,14 @@ function CartCard({
                         onClick={() => onRemove(prod.productId)}
                         className={`p-2 rounded-full transition-all duration-300 ${theme === 'dark'
                             ? 'bg-gray-800 hover:text-red-400 hover:bg-red-900/20'
-                            : 'bg-white hover:text-red-600 hover:bg-red-200'
+                            : 'bg-white hover:text-red-600 hover:bg-red-200 absolute top-2 right-2'
                             }`}
                     >
                         <RxCross2 />
                     </button>
                 </div>
 
-                <div className="flex justify-between items-center mt-4">
+                <div className="flex justify-between items-center flex-col md:flex-row mt-4">
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2">
                             <span className="text-lg font-bold text-indigo-600">${finalPrice.toFixed(2)}</span>
