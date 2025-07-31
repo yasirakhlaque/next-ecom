@@ -1,5 +1,5 @@
 "use client"
-import ToastMessage from '@/components/ToastMessage';
+import ToastMessage, { LoginToaster } from '@/components/ToastMessage';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { ProductCardProps, WishlistItem } from '@/types/types';
@@ -40,6 +40,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
     const [isHovered, setIsHovered] = useState(false);
     const [wishlistToaster, setWishlistToaster] = useState(false);
     const [cartToaster, setCartToaster] = useState(false);
+    const [loginToaster, setLoginToaster] = useState(false);
     const { data: session } = useSession();
     const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -75,6 +76,12 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
 
     const handleAddWishlist = async () => {
         if (!session?.user?.id) {
+            setWishlistToaster(false);
+            setCartToaster(false);
+            setLoginToaster(true);
+            setTimeout(() => {
+                setLoginToaster(false);
+            }, 2500)
             console.log("Please log in to add items to wishlist");
             return;
         }
@@ -131,6 +138,12 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
 
     const handleCartAdd = async () => {
         if (!session?.user?.id) {
+            setWishlistToaster(false);
+            setCartToaster(false);
+            setLoginToaster(true);
+            setTimeout(() => {
+                setLoginToaster(false);
+            }, 2500)
             console.log("Please log in to add items to cart");
             return;
         }
@@ -233,6 +246,12 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
                     <ToastMessage heading={"Cart"} info={product.name} />
                 </div>
             )}
+            {loginToaster && (
+                <div className="fixed bottom-4 right-4 z-[9999]">
+                    <LoginToaster />
+                </div>
+            )}
+
         </>
     );
 }
