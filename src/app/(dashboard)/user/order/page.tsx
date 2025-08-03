@@ -3,6 +3,7 @@ import Loading from "@/app/loading";
 import { OrderData, OrdersDummyData } from "@/lib/dummyData";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { FiEye, FiPackage, FiTruck } from "react-icons/fi";
 import { IoCheckmarkCircle, IoCloseCircle, IoTimeOutline } from "react-icons/io5";
 
@@ -12,6 +13,7 @@ interface OrderCardProps {
 
 
 export default function Orders() {
+    const { theme } = useTheme();
     const [orders, setOrders] = useState<OrderData[]>([]);
     const [loading, setLoading] = useState<boolean>(true); 
     const { data: session } = useSession();
@@ -42,7 +44,7 @@ export default function Orders() {
 
     return (
         <div className="space-y-6 px-10 my-10">
-            <h2 className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>
+            <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`} style={{ fontFamily: 'var(--font-playfair)' }}>
                 Your Orders
             </h2>
             <div className="space-y-4">
@@ -52,10 +54,10 @@ export default function Orders() {
                     ))
                 ) : (
                     <div className="text-center py-12">
-                        <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-2xl p-8">
+                        <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white/30'} backdrop-blur-sm border rounded-2xl p-8`}>
                             <FiPackage size={48} className="mx-auto text-gray-400 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-700 mb-2">No orders found</h3>
-                            <p className="text-gray-600">You haven't placed any orders yet.</p>
+                            <h3 className={`text-xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>No orders found</h3>
+                            <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>You haven't placed any orders yet.</p>
                         </div>
                     </div>
                 )}
@@ -66,6 +68,8 @@ export default function Orders() {
 
 
 function OrderCard({ order }: OrderCardProps) {
+    const { theme } = useTheme();
+    
     const getStatusIcon = (status: string) => {
         switch (status) {
             case "DELIVERED":
@@ -113,13 +117,13 @@ function OrderCard({ order }: OrderCardProps) {
     const totalItems = order.orderDetails.reduce((sum, detail) => sum + detail.quantity, 0);
 
     return (
-        <div className="bg-white/40 backdrop-blur-sm border border-white/50 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
+        <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/40 border-white/50'} backdrop-blur-sm border rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300`}>
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                    <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'} mb-1`}>
                         Order #{order.id.slice(-8).toUpperCase()}
                     </h3>
-                    <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{formatDate(order.createdAt)}</p>
                 </div>
                 <div className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${getStatusColor(order.status)}`}>
                     {getStatusIcon(order.status)}
@@ -129,13 +133,13 @@ function OrderCard({ order }: OrderCardProps) {
 
             <div className="flex flex-wrap gap-2 mb-4">
                 {order.orderDetails.slice(0, 3).map((detail) => (
-                    <div key={detail.id} className="flex items-center gap-2 bg-white/50 rounded-lg p-2 text-xs">
+                    <div key={detail.id} className={`flex items-center gap-2 ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-white/50'} rounded-lg p-2 text-xs`}>
                         <img
                             src={detail.product.image}
                             alt={detail.product.name}
                             className="w-8 h-8 object-cover rounded"
                         />
-                        <span className="font-medium">{detail.product.name}</span>
+                        <span className={`font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>{detail.product.name}</span>
                         {detail.quantity > 1 && (
                             <span className="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full text-xs">
                                 x{detail.quantity}
@@ -144,21 +148,21 @@ function OrderCard({ order }: OrderCardProps) {
                     </div>
                 ))}
                 {order.orderDetails.length > 3 && (
-                    <div className="bg-gray-100 rounded-lg p-2 text-xs text-gray-600 flex items-center">
+                    <div className={`${theme === 'dark' ? 'bg-gray-700/50 text-gray-400' : 'bg-gray-100 text-gray-600'} rounded-lg p-2 text-xs flex items-center`}>
                         +{order.orderDetails.length - 3} more items
                     </div>
                 )}
             </div>
 
-            <div className="flex justify-between items-center pt-4 border-t border-white/30">
+            <div className={`flex justify-between items-center pt-4 border-t ${theme === 'dark' ? 'border-gray-700/50' : 'border-white/30'}`}>
                 <div>
-                    <p className="text-sm text-gray-600">{totalItems} item(s)</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{totalItems} item(s)</p>
                     <p className="text-xl font-bold text-indigo-600" style={{ fontFamily: 'var(--font-playfair)' }}>
                         ${order.totalAmount.toFixed(2)}
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <button className="bg-white/60 hover:bg-white/80 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-1">
+                    <button className={`${theme === 'dark' ? 'bg-gray-700/60 hover:bg-gray-700/80 text-gray-200' : 'bg-white/60 hover:bg-white/80 text-gray-700'} px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-1`}>
                         <FiEye size={16} />
                         View Details
                     </button>

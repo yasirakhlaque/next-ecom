@@ -4,11 +4,13 @@ import { IoLocationOutline } from "react-icons/io5";
 import { useSession } from "next-auth/react";
 import { userData } from "@/types/types";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import Loading from "@/app/loading";
 import EditProfileForm from "@/components/Forms/EditProfileForm";
 import EditAddressForm from "@/components/Forms/EditAddressForm";
 
 export default function ProfilePage() {
+    const { theme } = useTheme();
     const { data: session } = useSession();
     const [userData, setUserData] = useState<userData | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -85,9 +87,9 @@ export default function ProfilePage() {
     return (
         <>
             <div className="min-h-screen m-5 md:m-10">
-                <h1 className="text-3xl font-semibold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>Profile Information</h1>
+                <h1 className={`text-3xl font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`} style={{ fontFamily: 'var(--font-playfair)' }}>Profile Information</h1>
                 <div className="flex justify-center gap-4 p-6 flex-col md:flex-row">
-                    <div className="flex flex-col items-center justify-center gap-4 bg-white/30 backdrop-blur-xl rounded-lg shadow-lg p-6 border-1 border-white w-full md:w-1/3 h-60">
+                    <div className={`flex flex-col items-center justify-center gap-4 ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} backdrop-blur-xl rounded-lg shadow-lg p-6 border-1 w-full md:w-1/3 h-60`}>
                         <div className="h-24 w-24"> {/* Fixed size */}
                             <div className="h-full w-full rounded-full overflow-hidden bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center p-1">
                                 <img
@@ -100,36 +102,36 @@ export default function ProfilePage() {
                                 />
                             </div>
                         </div>
-                        <h1 className="text-xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        <h1 className={`text-xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: 'var(--font-playfair)' }}>
                             {displayName}
                         </h1>
                     </div>
 
                     {/* Update form inputs to use userData */}
                     <div className="flex flex-col w-full md:w-2/3 justify-center items-center gap-4">
-                        <div className="bg-white/30 border-1 border-white backdrop-blur-xl rounded-lg shadow-lg p-6 flex flex-col gap-4 w-full">
-                            <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Personal Information</h1>
+                        <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} border-1 backdrop-blur-xl rounded-lg shadow-lg p-6 flex flex-col gap-4 w-full`}>
+                            <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: 'var(--font-playfair)' }}>Personal Information</h1>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <label htmlFor="name" className="text-sm font-semibold">Name</label>
+                                    <label htmlFor="name" className={`text-sm font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Name</label>
                                     <input
                                         type="text"
                                         name="name"
                                         id="name"
                                         value={displayName || ""}
                                         disabled
-                                        className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg"
+                                        className={`${theme === 'dark' ? 'bg-gray-700/50 border-gray-600/50 text-gray-200' : 'bg-white/30 border-white text-gray-800'} border-1 px-4 py-3 rounded-lg`}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-2 md:col-span-2">
-                                    <label htmlFor="email" className="text-sm font-semibold">Email</label>
+                                    <label htmlFor="email" className={`text-sm font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
                                     <input
                                         type="email"
                                         name="email"
                                         id="email"
                                         value={userData?.email || session?.user?.email || ""}
                                         disabled
-                                        className="bg-white/30 border-1 border-white px-4 py-3 rounded-lg"
+                                        className={`${theme === 'dark' ? 'bg-gray-700/50 border-gray-600/50 text-gray-200' : 'bg-white/30 border-white text-gray-800'} border-1 px-4 py-3 rounded-lg`}
                                     />
                                 </div>
                             </div>
@@ -137,18 +139,18 @@ export default function ProfilePage() {
                                 Edit Profile<FaPencil />
                             </button>
                         </div>
-                        <div className="bg-white/30 border-1 border-white backdrop-blur-xl rounded-lg shadow-lg p-6 flex flex-col gap-4 w-full">
+                        <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} border-1 backdrop-blur-xl rounded-lg shadow-lg p-6 flex flex-col gap-4 w-full`}>
                             <div className="flex items-center gap-4">
-                                <IoLocationOutline size={24} className="text-indigo-500" /> <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Shipping Address</h1>
+                                <IoLocationOutline size={24} className="text-indigo-500" /> <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: 'var(--font-playfair)' }}>Shipping Address</h1>
                             </div>
                             <div className="flex flex-col gap-4">
-                                <div className="flex justify-center flex-col bg-white/30 border-1 border-white px-4 py-3 rounded-lg">
+                                <div className={`flex justify-center flex-col ${theme === 'dark' ? 'bg-gray-700/50 border-gray-600/50 text-gray-200' : 'bg-white/30 border-white text-gray-800'} border-1 px-4 py-3 rounded-lg`}>
                                     <h4>{session?.user.name}</h4>
                                     <h4>{addressInfo.street}</h4>
                                     <h4>{addressInfo.city}{addressInfo.state && `, ${addressInfo.state}`} {addressInfo.zip}</h4>
                                     <h4>{addressInfo.country}</h4>
                                     {!userData?.address && (
-                                        <p className="text-sm text-gray-500 italic mt-2">
+                                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} italic mt-2`}>
                                             * This is a sample address. Please update your shipping address.
                                         </p>
                                     )}
