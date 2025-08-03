@@ -28,8 +28,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
 
+        // Calculate average rating
+        let calculatedRating = 0;
+        if (product.reviews && product.reviews.length > 0) {
+            const totalRating = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+            calculatedRating = totalRating / product.reviews.length;
+        }
+
         const transformedProduct = {
             ...product,
+            rating: calculatedRating, // Override with calculated rating
             reviews: product.reviews.map(review => ({
                 ...review,
                 userName: review.user?.name || 'Anonymous',

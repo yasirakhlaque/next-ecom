@@ -19,13 +19,35 @@ export async function GET(req: NextRequest) {
                 rating: true,
                 createdAt: true,
                 updatedAt: true,
+                reviews: {
+                    select: {
+                        rating: true
+                    }
+                }
             },
             orderBy: {
                 createdAt: 'desc'
             }
         });
 
-        return NextResponse.json(products, { status: 200 });
+        // Calculate average rating for each product
+        const productsWithCalculatedRating = products.map(product => {
+            let calculatedRating = 0;
+            
+            if (product.reviews && product.reviews.length > 0) {
+                const totalRating = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+                calculatedRating = totalRating / product.reviews.length;
+            }
+            
+            // Return product without reviews array but with calculated rating
+            const { reviews, ...productWithoutReviews } = product;
+            return {
+                ...productWithoutReviews,
+                rating: calculatedRating
+            };
+        });
+
+        return NextResponse.json(productsWithCalculatedRating, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
     }
