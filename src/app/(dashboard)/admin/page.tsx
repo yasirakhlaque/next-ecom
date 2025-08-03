@@ -11,9 +11,11 @@ import { FiShoppingBag, FiShoppingCart, FiUser } from "react-icons/fi";
 import { VscGraph } from "react-icons/vsc";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
 import { LuUsers } from "react-icons/lu";
+import { useTheme } from "@/contexts/ThemeContext";
 import Loading from "@/app/loading";
 
 export default function AdminDashboard() {
+    const { theme } = useTheme();
     const { data: session, status } = useSession(); 
     const router = useRouter(); 
     const [activeTab, setActiveTab] = useState("overview");
@@ -39,8 +41,8 @@ export default function AdminDashboard() {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-800">Access Denied</h1>
-                    <p className="text-gray-600">Redirecting...</p>
+                    <h1 className={`text-2xl font-bold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>Access Denied</h1>
+                    <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>Redirecting...</p>
                 </div>
             </div>
         );
@@ -72,10 +74,10 @@ export default function AdminDashboard() {
         <div className="min-h-screen m-10">
             <div className="flex justify-between items-center flex-col sm:flex-row">
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <h1 className={`text-4xl font-bold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`} style={{ fontFamily: 'var(--font-playfair)' }}>
                         Admin Dashboard
                     </h1>
-                    <p className="text-gray-700 my-2">Welcome back! Here's what's happening with your store.</p>
+                    <p className={`my-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Welcome back! Here's what's happening with your store.</p>
                 </div>
                 <div>
                     <Link href={"/admin/addProduct"}>
@@ -86,8 +88,8 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            <div className="rounded-xl bg-white p-4 my-4">
-                <h1 className="text-2xl font-bold text-gray-700" style={{ fontFamily: "var(--font-playfair)" }}>Quick Action</h1>
+            <div className={`rounded-xl ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} p-4 my-4`}>
+                <h1 className={`text-2xl font-bold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: "var(--font-playfair)" }}>Quick Action</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 my-2">
                     <Link href={"/admin/addProduct"} className="py-6 flex justify-center items-center gap-2 bg-gradient-to-tl from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-300 hover:to-emerald-500 transition-all duration-300 cursor-pointer">
                         <div className="flex flex-col justify-center items-center gap-4">
@@ -115,7 +117,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            <div className="flex flex-wrap w-fit shadow-lg items-center mt-6 bg-white rounded-lg md:rounded-full backdrop-blur-2xl justify-center">
+            <div className={`flex flex-wrap w-fit shadow-lg items-center mt-6 ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-lg md:rounded-full backdrop-blur-2xl justify-center`}>
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -123,7 +125,7 @@ export default function AdminDashboard() {
                         className={`px-4 py-2 m-2 rounded-lg md:rounded-full font-bold text-xs transition-all duration-200 whitespace-nowrap flex justify-center items-center gap-2
                                 ${activeTab === tab.id
                                 ? "bg-gradient-to-tr from-indigo-600 to-purple-600 text-white"
-                                : "text-gray-700 font-medium hover:bg-gray-600 hover:text-gray-100"}`}
+                                : `${theme === 'dark' ? 'text-gray-300 hover:bg-gray-600 hover:text-gray-100' : 'text-gray-700 font-medium hover:bg-gray-600 hover:text-gray-100'}`}`}
                     >
                         {tab.icon} {tab.label}
                     </button>
@@ -137,6 +139,7 @@ export default function AdminDashboard() {
 }
 
 function Overview() {
+    const { theme } = useTheme();
     const [dashboardData, setDashboardData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -181,7 +184,7 @@ function Overview() {
     if (loading) {
         return (
             <div className="m-10 flex justify-center items-center">
-                <div className="text-xl">Loading dashboard data...</div>
+                <div className={`text-xl ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Loading dashboard data...</div>
             </div>
         );
     }
@@ -199,42 +202,42 @@ function Overview() {
     return (
         <div className="m-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2 border-1 border-white">
-                    <h1 className="flex justify-between items-center font-semibold">
+                <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2 border-1`}>
+                    <h1 className={`flex justify-between items-center font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
                         Total Revenue
                         <RiMoneyDollarCircleLine className="text-green-500 bg-green-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">${dashboardData?.totalRevenue?.toFixed(2) || '0.00'}</h4>
+                    <h4 className={`font-bold text-2xl sm:text-3xl ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>${dashboardData?.totalRevenue?.toFixed(2) || '0.00'}</h4>
                 </div>
-                <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2">
-                    <h1 className="flex justify-between items-center font-semibold">
+                <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2 border-1`}>
+                    <h1 className={`flex justify-between items-center font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
                         Total Orders
                         <FiShoppingCart className="text-blue-500 bg-blue-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">{dashboardData?.totalOrders || 0}</h4>
+                    <h4 className={`font-bold text-2xl sm:text-3xl ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>{dashboardData?.totalOrders || 0}</h4>
                 </div>
-                <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2">
-                    <h1 className="flex justify-between items-center font-semibold">
+                <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2 border-1`}>
+                    <h1 className={`flex justify-between items-center font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
                         Total Products
                         <FiShoppingBag className="text-purple-500 bg-purple-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">{dashboardData?.totalProducts || 0}</h4>
+                    <h4 className={`font-bold text-2xl sm:text-3xl ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>{dashboardData?.totalProducts || 0}</h4>
                 </div>
-                <div className="bg-white/30 backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2">
-                    <h1 className="flex justify-between items-center font-semibold">
+                <div className={`${theme === 'dark' ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/30 border-white'} backdrop-blur-xl rounded-lg shadow-xl p-6 flex flex-col gap-2 border-1`}>
+                    <h1 className={`flex justify-between items-center font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
                         Total Customers
                         <LuUsers className="text-orange-500 bg-orange-200 rounded-lg p-1" size={27} />
                     </h1>
-                    <h4 className="font-bold text-2xl sm:text-3xl">{dashboardData?.totalCustomers || 0}</h4>
+                    <h4 className={`font-bold text-2xl sm:text-3xl ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>{dashboardData?.totalCustomers || 0}</h4>
                 </div>
             </div>
             <div className="my-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Recent Orders */}
-                <div className="px-10 py-7 bg-white rounded-xl">
+                <div className={`px-10 py-7 ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-xl`}>
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Recent Orders</h1>
+                        <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: 'var(--font-playfair)' }}>Recent Orders</h1>
                         <Link href={"/admin/order"}>
-                            <button className="flex justify-center items-center gap-2 rounded-full border-1 border-white bg-white/10 py-2 px-4 text-gray-700 text-sm font-semibold">
+                            <button className={`flex justify-center items-center gap-2 rounded-full border-1 ${theme === 'dark' ? 'border-gray-600 bg-gray-700/50 text-gray-200' : 'border-white bg-white/10 text-gray-700'} py-2 px-4 text-sm font-semibold`}>
                                 <FaRegEye /> View All
                             </button>
                         </Link>
@@ -243,8 +246,8 @@ function Overview() {
                         {dashboardData?.recentOrders?.map((order: any, index: number) => (
                             <div className="flex justify-between items-center text-xs my-4" key={index}>
                                 <div className="flex flex-col gap-2">
-                                    <h2 className="font-semibold">{order.orderedBy}</h2>
-                                    <p className="text-gray-500">{order.email}</p>
+                                    <h2 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>{order.orderedBy}</h2>
+                                    <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>{order.email}</p>
                                 </div>
                                 <div className="flex items-end flex-col gap-2">
                                     <h1 className="text-sm font-bold text-blue-800">${order.itemPrice}</h1>
@@ -252,7 +255,7 @@ function Overview() {
                                         <h3 className={`${getStatusStyles(order.status)} rounded-full text-xs font-semibold px-2 py-1`}>
                                             {order.status}
                                         </h3>
-                                        <p className="text-gray-400">{order.date}</p>
+                                        <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}>{order.date}</p>
                                     </div>
                                 </div>
                             </div>
@@ -261,18 +264,18 @@ function Overview() {
                 </div>
 
                 {/* Top Products */}
-                <div className="px-10 py-7 bg-white rounded-xl">
+                <div className={`px-10 py-7 ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-xl`}>
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: 'var(--font-playfair)' }}>Top Products</h1>
+                        <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: 'var(--font-playfair)' }}>Top Products</h1>
                         <Link href={"/admin/products"}>
-                            <button className="flex justify-center items-center gap-2 rounded-full bg-white/10 py-2 px-4 text-gray-700 text-sm font-semibold">
+                            <button className={`flex justify-center items-center gap-2 rounded-full ${theme === 'dark' ? 'bg-gray-700/50 text-gray-200' : 'bg-white/10 text-gray-700'} py-2 px-4 text-sm font-semibold`}>
                                 <FaRegEye /> View All
                             </button>
                         </Link>
                     </div>
                     <div>
                         {dashboardData?.topProducts?.map((item: any) => (
-                            <div key={item.rank} className="flex items-center justify-between gap-6 my-5 bg-white/50 rounded-lg p-2 text-xs">
+                            <div key={item.rank} className={`flex items-center justify-between gap-6 my-5 ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-white/50'} rounded-lg p-2 text-xs`}>
                                 <div className="flex gap-4">
                                     <h1 className="rounded-xl flex justify-center items-center font-semibold text-white bg-gradient-to-tl from-purple-600 to-blue-600 p-2">#{item.rank}</h1>
                                     <div className="flex gap-2">
@@ -282,8 +285,8 @@ function Overview() {
                                             className="w-8 h-8 object-cover rounded"
                                         />
                                         <div className="flex flex-col gap-2">
-                                            <span className="font-semibold">{item.itemName}</span>
-                                            <span className="text-gray-400">{item.totalSales} sales</span>
+                                            <span className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>{item.itemName}</span>
+                                            <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}>{item.totalSales} sales</span>
                                         </div>
                                     </div>
                                 </div>
