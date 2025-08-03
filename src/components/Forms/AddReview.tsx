@@ -1,6 +1,6 @@
-import { RatingStars } from "@/app/(dashboard)/product/[id]/page";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useState } from "react";
+import RatingStars from "../RatingStar";
 
 export default function AddReviewForm({ userId, productId, onClose }: { userId?: string, productId?: string, onClose: () => void }) {
     const { theme } = useTheme();
