@@ -2,9 +2,11 @@
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AddProductForm() {
     const { data: session, status } = useSession();
+    const { theme } = useTheme();
     const [role, setRole] = useState<string>("");
     const [isLoadingRole, setIsLoadingRole] = useState(true);
 
@@ -102,8 +104,8 @@ export default function AddProductForm() {
     // Show loading while session or role is loading
     if (status === "loading" || isLoadingRole) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-xl">Loading...</div>
+            <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                <div className={`text-xl ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Loading...</div>
             </div>
         );
     }
@@ -121,9 +123,9 @@ export default function AddProductForm() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-xs">
-                <h1 className="text-2xl font-bold mb-6 text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>Add New Product</h1>
+        <div className={`min-h-screen flex items-center justify-center py-10 ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100'}`}>
+            <div className={`p-8 rounded-lg w-full max-w-md text-xs backdrop-blur-md border ${theme === 'dark' ? 'bg-gray-800/80 border-gray-700 shadow-2xl' : 'bg-white/80 border-white/20 shadow-xl'}`}>
+                <h1 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`} style={{ fontFamily: 'var(--font-playfair)' }}>Add New Product</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         type="text"
@@ -132,7 +134,7 @@ export default function AddProductForm() {
                         onChange={handleChange}
                         placeholder="Product Name"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <div className='flex justify-center items-center gap-2'>
                         <input
@@ -143,7 +145,7 @@ export default function AddProductForm() {
                             placeholder="Price"
                             step="0.01"
                             required
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                         />
                         <input
                             type="number"
@@ -153,7 +155,7 @@ export default function AddProductForm() {
                             placeholder="Discount Percentage if any"
                             min="0"
                             max="100"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                         />
                     </div>
                     <input
@@ -163,7 +165,7 @@ export default function AddProductForm() {
                         onChange={handleChange}
                         placeholder="Image URL"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <input
                         type="text"
@@ -172,7 +174,7 @@ export default function AddProductForm() {
                         onChange={handleChange}
                         placeholder="Brand"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <input
                         type="text"
@@ -181,7 +183,7 @@ export default function AddProductForm() {
                         onChange={handleChange}
                         placeholder="Size"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <input
                         type="text"
@@ -190,7 +192,7 @@ export default function AddProductForm() {
                         onChange={handleChange}
                         placeholder="Category"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <input
                         type="number"
@@ -200,7 +202,7 @@ export default function AddProductForm() {
                         placeholder="In Stock"
                         min="0"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <textarea
                         name="description"
@@ -209,12 +211,12 @@ export default function AddProductForm() {
                         placeholder="Description"
                         required
                         rows={4}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-indigo-500'}`}
                     />
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50"
+                        className={`w-full py-3 rounded-lg transition-colors duration-300 disabled:opacity-50 ${theme === 'dark' ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                     >
                         {isLoading ? 'Adding Product...' : 'Add Product'}
                     </button>
