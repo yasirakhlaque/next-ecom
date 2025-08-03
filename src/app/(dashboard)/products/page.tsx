@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import { Product } from "@/types/types";
+import { useTheme } from "@/contexts/ThemeContext";
 import ProductCard from "@/app/@ProductCard/page";
 import Loading from "@/app/loading";
 
@@ -12,6 +13,7 @@ const CustomSelect = ({ value, onChange, options }: {
     options: { value: string; label: string }[];
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const { theme } = useTheme();
 
     const selectedOption = options.find(option => option.value === value);
 
@@ -20,9 +22,11 @@ const CustomSelect = ({ value, onChange, options }: {
             {/* Select Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full p-3 rounded-lg bg-white/30 backdrop-blur-sm border border-white/40 
-                         flex items-center justify-between text-gray-700 font-medium
-                         hover:bg-white/40 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className={`w-full p-3 rounded-lg backdrop-blur-sm border flex items-center justify-between font-medium hover:bg-opacity-80 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs ${
+                    theme === 'dark' 
+                        ? 'bg-gray-800/30 border-gray-700/40 text-gray-200 hover:bg-gray-700/40' 
+                        : 'bg-white/30 border-white/40 text-gray-700 hover:bg-white/40'
+                }`}
             >
                 <span>{selectedOption?.label}</span>
                 <FiChevronDown className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -30,9 +34,11 @@ const CustomSelect = ({ value, onChange, options }: {
 
             {/* Dropdown Options */}
             {isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 z-50 
-                              bg-white/90 backdrop-blur-xl border border-white/50 rounded-lg shadow-2xl shadow-black/20
-                              overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
+                <div className={`absolute top-full left-0 right-0 mt-2 z-50 backdrop-blur-xl border rounded-lg shadow-2xl shadow-black/20 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200 ${
+                    theme === 'dark' 
+                        ? 'bg-gray-900/90 border-gray-700/50' 
+                        : 'bg-white/90 border-white/50'
+                }`}>
                     {options.map((option) => (
                         <button
                             key={option.value}
@@ -40,12 +46,17 @@ const CustomSelect = ({ value, onChange, options }: {
                                 onChange(option.value);
                                 setIsOpen(false);
                             }}
-                            className={`w-full p-3 text-left text-xs font-medium transition-all duration-200
-                                      hover:bg-indigo-500/20 hover:text-indigo-700
-                                      ${value === option.value
-                                    ? 'bg-indigo-500/10 text-indigo-600 border-l-4 border-indigo-500'
-                                    : 'text-gray-700'
-                                }`}
+                            className={`w-full p-3 text-left text-xs font-medium transition-all duration-200 hover:text-indigo-500 ${
+                                value === option.value
+                                    ? `${theme === 'dark' 
+                                        ? 'bg-indigo-900/20 text-indigo-400 border-l-4 border-indigo-400' 
+                                        : 'bg-indigo-500/10 text-indigo-600 border-l-4 border-indigo-500'
+                                    }`
+                                    : `${theme === 'dark' 
+                                        ? 'text-gray-300 hover:bg-gray-800/60' 
+                                        : 'text-gray-700 hover:bg-indigo-500/20'
+                                    }`
+                            }`}
                         >
                             {option.label}
                         </button>
@@ -68,6 +79,7 @@ export default function ProductsPage() {
     const [sortOption, setSortOption] = useState("A-Z");
     const [products, setProducts] = useState<Product[]>([]); // ✅ Added type annotation
     const [isLoading, setIsLoading] = useState(true);
+    const { theme } = useTheme();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -130,15 +142,25 @@ export default function ProductsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-2 py-2 text-gray-600">
-            <h1 className="text-4xl font-bold text-center my-8 text-gray-800" style={{ fontFamily: 'var(--font-playfair)' }}>
+        <div className={`min-h-screen px-2 py-2 transition-colors duration-300 ${
+            theme === 'dark' 
+                ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-purple-900 text-gray-200' 
+                : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 text-gray-600'
+        }`}>
+            <h1 className={`text-4xl font-bold text-center my-8 transition-colors duration-300 ${
+                theme === 'dark' ? 'text-gray-100' : 'text-gray-800'
+            }`} style={{ fontFamily: 'var(--font-playfair)' }}>
                 Products Collection
             </h1>
             <div className="px-8 pt-10">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl md:text-3xl font-semibold" style={{ fontFamily: 'var(--font-playfair)' }}>All Products</h1>
+                    <h1 className={`text-xl md:text-3xl font-semibold transition-colors duration-300 ${
+                        theme === 'dark' ? 'text-gray-100' : 'text-gray-800'
+                    }`} style={{ fontFamily: 'var(--font-playfair)' }}>All Products</h1>
                     <div className="mb-6 flex items-center justify-end gap-4 flex-wrap">
-                        <p className="text-gray-700 font-medium text-nowrap">Sort by:</p>
+                        <p className={`font-medium text-nowrap transition-colors duration-300 ${
+                            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                        }`}>Sort by:</p>
                         <CustomSelect
                             value={sortOption}
                             onChange={handleSortChange}
