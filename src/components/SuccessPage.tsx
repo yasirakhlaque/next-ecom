@@ -2,9 +2,12 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { TbRosetteDiscountCheckFilled } from "react-icons/tb";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SuccessPage({ orderId }: { orderId: string | null }) {
     const router = useRouter();
+    const { theme } = useTheme();
+    
     useEffect(() => {
         const OrderPageRedirect = () => {
             setTimeout(() => {
@@ -13,8 +16,9 @@ export default function SuccessPage({ orderId }: { orderId: string | null }) {
         }
         OrderPageRedirect();
     }, [])
+    
     return (
-        <div className="min-h-screen justify-center items-center bg-green-700 flex flex-col gap-4 p-6 text-white">
+        <div className={`min-h-screen justify-center items-center flex flex-col gap-4 p-6 text-white ${theme === 'dark' ? 'bg-gradient-to-br from-green-900 via-emerald-800 to-teal-900' : 'bg-green-700'}`}>
             <div className="success">
                 <TbRosetteDiscountCheckFilled size={50}/>
             </div>
