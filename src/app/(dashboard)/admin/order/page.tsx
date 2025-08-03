@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { FiEye, FiPackage, FiTruck } from "react-icons/fi";
 import { IoCheckmarkCircle, IoCloseCircle, IoTimeOutline } from "react-icons/io5";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -28,6 +29,7 @@ interface OrderData {
 }
 
 export default function Orders() {
+    const { theme } = useTheme();
     const [orders, setOrders] = useState<OrderData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -124,7 +126,7 @@ export default function Orders() {
     if (loading) {
         return (
             <div className="min-h-screen m-10">
-                <div className="text-xl">Loading...</div>
+                <div className={`text-xl ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Loading...</div>
             </div>
         );
     }
@@ -132,24 +134,24 @@ export default function Orders() {
     return (
         <div className="min-h-screen m-10 flex flex-col gap-6">
             <div>
-                <h1 className="text-2xl font-semibold text-gray-700" style={{ fontFamily: "var(--font-playfair)" }}>
+                <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`} style={{ fontFamily: "var(--font-playfair)" }}>
                     Order Management
                 </h1>
-                <p className="text-gray-400 my-2">Manage customer orders and update their status</p>
+                <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'} my-2`}>Manage customer orders and update their status</p>
             </div>
             
-            <div className="bg-white rounded-xl flex justify-between items-center px-6 py-4 gap-4">
+            <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-xl flex justify-between items-center px-6 py-4 gap-4`}>
                 <input
                     type="search"
                     placeholder="Search orders by customer name, email, or order ID..."
-                    className="flex-1 outline-none border border-gray-300 rounded-lg px-4 py-2 text-sm"
+                    className={`flex-1 outline-none border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-gray-200' : 'border-gray-300 bg-white text-gray-800'} rounded-lg px-4 py-2 text-sm`}
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                 />
                 <select
                     value={selectedStatus}
                     onChange={e => setSelectedStatus(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm"
+                    className={`border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-gray-200' : 'border-gray-300 bg-white text-gray-800'} rounded-lg px-4 py-2 text-sm`}
                 >
                     <option value="ALL">All Statuses</option>
                     <option value="PENDING">Pending</option>
@@ -160,8 +162,8 @@ export default function Orders() {
                 </select>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <h1 className="text-2xl font-bold mb-8" style={{ fontFamily: "var(--font-playfair)" }}>
+            <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white'} rounded-2xl p-8 shadow-sm`}>
+                <h1 className={`text-2xl font-bold mb-8 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`} style={{ fontFamily: "var(--font-playfair)" }}>
                     Orders ({filteredOrders.length})
                 </h1>
 
@@ -174,21 +176,21 @@ export default function Orders() {
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-gray-100">
-                                <th className="text-left py-4 px-4 font-medium text-gray-500 text-sm">Order ID</th>
-                                <th className="text-left py-4 px-4 font-medium text-gray-500 text-sm">Customer</th>
-                                <th className="text-left py-4 px-4 font-medium text-gray-500 text-sm">Items</th>
-                                <th className="text-left py-4 px-4 font-medium text-gray-500 text-sm">Total</th>
-                                <th className="text-left py-4 px-4 font-medium text-gray-500 text-sm">Status</th>
-                                <th className="text-left py-4 px-4 font-medium text-gray-500 text-sm">Date</th>
-                                <th className="text-center py-4 px-4 font-medium text-gray-500 text-sm">Actions</th>
+                            <tr className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}>
+                                <th className={`text-left py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Order ID</th>
+                                <th className={`text-left py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Customer</th>
+                                <th className={`text-left py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Items</th>
+                                <th className={`text-left py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Total</th>
+                                <th className={`text-left py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Status</th>
+                                <th className={`text-left py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Date</th>
+                                <th className={`text-center py-4 px-4 font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredOrders.map((order) => (
-                                <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50">
+                                <tr key={order.id} className={`border-b ${theme === 'dark' ? 'border-gray-700/50 hover:bg-gray-700/30' : 'border-gray-50 hover:bg-gray-50'}`}>
                                     <td className="py-4 px-4">
-                                        <span className="font-medium text-gray-900">
+                                        <span className={`font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>
                                             #{order.id.slice(-8).toUpperCase()}
                                         </span>
                                     </td>
@@ -197,32 +199,32 @@ export default function Orders() {
                                             {order.user.image ? (
                                                 <img src={order.user.image} alt={order.user.name} className="w-10 h-10 rounded-full" />
                                             ) : (
-                                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                                                <div className={`w-10 h-10 rounded-full ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'} flex items-center justify-center font-medium`}>
                                                     {order.user.name?.charAt(0)?.toUpperCase() || 'U'}
                                                 </div>
                                             )}
                                             <div>
-                                                <div className="font-medium text-gray-900">{order.user.name || 'N/A'}</div>
-                                                <div className="text-sm text-gray-500">{order.user.email}</div>
+                                                <div className={`font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>{order.user.name || 'N/A'}</div>
+                                                <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{order.user.email}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="py-4 px-4">
                                         <div className="flex flex-wrap gap-1">
                                             {order.orderDetails.slice(0, 2).map((detail, index) => (
-                                                <span key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                                <span key={index} className={`text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'} px-2 py-1 rounded`}>
                                                     {detail.product.name} (x{detail.quantity})
                                                 </span>
                                             ))}
                                             {order.orderDetails.length > 2 && (
-                                                <span className="text-xs text-gray-500">
+                                                <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     +{order.orderDetails.length - 2} more
                                                 </span>
                                             )}
                                         </div>
                                     </td>
                                     <td className="py-4 px-4">
-                                        <span className="font-medium text-gray-900">
+                                        <span className={`font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>
                                             ${order.totalAmount.toFixed(2)}
                                         </span>
                                     </td>
@@ -240,12 +242,12 @@ export default function Orders() {
                                         </select>
                                     </td>
                                     <td className="py-4 px-4">
-                                        <span className="text-gray-600">
+                                        <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
                                             {new Date(order.createdAt).toLocaleDateString()}
                                         </span>
                                     </td>
                                     <td className="py-4 px-4 text-center">
-                                        <button className="text-gray-400 hover:text-gray-600 p-1">
+                                        <button className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} p-1`}>
                                             <FiEye size={16} />
                                         </button>
                                     </td>
