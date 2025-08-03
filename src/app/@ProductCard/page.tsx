@@ -2,6 +2,7 @@
 import ToastMessage, { LoginToaster } from '@/components/ToastMessage';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { ProductCardProps, WishlistItem } from '@/types/types';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import { FiHeart, FiShoppingBag } from 'react-icons/fi';
 
 // Star Rating Component
 export const StarRating = ({ rating = 0 }: { rating: number }) => {
+    const { theme } = useTheme();
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
@@ -27,10 +29,10 @@ export const StarRating = ({ rating = 0 }: { rating: number }) => {
 
             {/* Empty Stars */}
             {[...Array(emptyStars)].map((_, index) => (
-                <FaRegStar key={`empty-${index}`} className="text-gray-300 text-sm" />
+                <FaRegStar key={`empty-${index}`} className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-300'}`} />
             ))}
 
-            <span className="text-xs text-gray-600 ml-1">({rating.toFixed(1)})</span>
+            <span className={`text-xs ml-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>({rating.toFixed(1)})</span>
         </div>
     );
 };
@@ -48,6 +50,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
     const [isWishlisted, setIsWishListed] = useState(false);
     const { updateWishlistCount } = useWishlist();
     const { refreshCart, updateCartCount } = useCart();
+    const { theme } = useTheme();
 
 
     useEffect(() => {
@@ -185,17 +188,27 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
 
     return (
         <>
-            <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-left hover:scale-105 group" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+            <div className={`backdrop-blur-sm border rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-left hover:scale-105 group ${
+                theme === 'dark' 
+                    ? 'bg-gray-900/30 border-gray-700/30 hover:bg-gray-800/40' 
+                    : 'bg-white/30 border-white/30 hover:bg-white/40'
+            }`} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                 <div className='relative'>
                     {
                         isHovered &&
                         <div className='absolute z-50 top-2 right-2 p-2 flex flex-col gap-2 text-gray-900'>
                             {isWishlisted ?
-                                <FaHeart size={35} className='bg-white rounded-full p-2 text-pink-600 cursor-pointer' onClick={() => handleRemoveItem(session?.user?.id || '', product.id)} />
+                                <FaHeart size={35} className={`rounded-full p-2 text-pink-600 cursor-pointer transition-all duration-300 ${
+                                    theme === 'dark' ? 'bg-gray-800/90 hover:bg-gray-700/90' : 'bg-white hover:bg-gray-100'
+                                }`} onClick={() => handleRemoveItem(session?.user?.id || '', product.id)} />
                                 :
-                                <FiHeart size={35} className='bg-white rounded-full p-2 hover:text-pink-600 transition-all duration-300 cursor-pointer' onClick={handleAddWishlist} />
+                                <FiHeart size={35} className={`rounded-full p-2 hover:text-pink-600 transition-all duration-300 cursor-pointer ${
+                                    theme === 'dark' ? 'bg-gray-800/90 hover:bg-gray-700/90 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                                }`} onClick={handleAddWishlist} />
                             }
-                            <FiShoppingBag size={35} className='bg-white rounded-full p-2 hover:text-blue-600 transition-all duration-300 cursor-pointer' onClick={handleCartAdd} />
+                            <FiShoppingBag size={35} className={`rounded-full p-2 hover:text-blue-600 transition-all duration-300 cursor-pointer ${
+                                theme === 'dark' ? 'bg-gray-800/90 hover:bg-gray-700/90 text-gray-200' : 'bg-white hover:bg-gray-100 text-gray-700'
+                            }`} onClick={handleCartAdd} />
                         </div>
                     }
                 </div>
@@ -210,7 +223,9 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
                 <div className="p-4">
                     <h4 className="text-indigo-500 text-sm font-semibold mb-1">{product.category}</h4>
                     <Link href={`/product/${product.id}`}>
-                        <h2 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-indigo-600 transition-all duration-300">{product.name}</h2>
+                        <h2 className={`text-lg font-semibold mb-2 group-hover:text-indigo-600 transition-all duration-300 ${
+                            theme === 'dark' ? 'text-gray-100' : 'text-gray-800'
+                        }`}>{product.name}</h2>
                     </Link>
 
                     {/* Star Rating */}
@@ -221,7 +236,7 @@ export default function ProductCard({ product }: { product: ProductCardProps }) 
                             ${finalPrice.toFixed(2)}
                         </span>
                         {product.price && product.price !== finalPrice && (
-                            <span className="line-through text-xs text-gray-500">
+                            <span className={`line-through text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                                 ${product.price.toFixed(2)}
                             </span>
                         )}
