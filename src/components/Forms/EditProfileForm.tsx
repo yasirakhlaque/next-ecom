@@ -1,13 +1,13 @@
 "use client"
-import { userData } from "@/types/types";
-import { useSession } from "next-auth/react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { userData } from "@/types/types";import { useSession } from "next-auth/react";
 import { useState } from "react";
-
 
 export default function EditProfileForm({ userData, setEditForm, onUpdate }: {
     userData: userData | null; setEditForm: (value: boolean) => void; onUpdate: () => void;
 }) {
     const { data: session, update: updateSession } = useSession();
+    const { theme } = useTheme();
     const [submitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -94,14 +94,14 @@ export default function EditProfileForm({ userData, setEditForm, onUpdate }: {
 
                 {/* Success Message */}
                 {successMessage && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded-lg mb-4 text-sm">
+                    <div className={`border p-3 rounded-lg mb-4 text-sm ${theme === 'dark' ? 'bg-green-900 border-green-700 text-green-300' : 'bg-green-100 border-green-400 text-green-700'}`}>
                         {successMessage}
                     </div>
                 )}
 
                 {/* Error Message */}
                 {errorMessage && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-lg mb-4 text-sm">
+                    <div className={`border p-3 rounded-lg mb-4 text-sm ${theme === 'dark' ? 'bg-red-900 border-red-700 text-red-300' : 'bg-red-100 border-red-400 text-red-700'}`}>
                         {errorMessage}
                     </div>
                 )}
@@ -109,40 +109,40 @@ export default function EditProfileForm({ userData, setEditForm, onUpdate }: {
                 {/* Form for editing user profile */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
+                        <label htmlFor="name" className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Name</label>
                         <input
                             type="text"
                             name="name"
                             id="name"
                             value={formData.name}
                             onChange={handleInputChange}
-                            className="bg-white px-3 py-4 rounded-lg outline-none border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                            className={`px-3 py-4 rounded-lg outline-none border transition-colors focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500 focus:ring-purple-200' : 'bg-white border-gray-300 text-gray-900 focus:border-indigo-500 focus:ring-indigo-200'}`}
                             required
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+                        <label htmlFor="email" className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
                         <input
                             type="email"
                             name="email"
                             id="email"
                             value={formData.email}
-                            className="bg-gray-100 px-3 py-4 rounded-lg outline-none border border-gray-300"
+                            className={`px-3 py-4 rounded-lg outline-none border ${theme === 'dark' ? 'bg-gray-600 border-gray-600 text-gray-400' : 'bg-gray-100 border-gray-300 text-gray-600'}`}
                             disabled
                         />
-                        <p className="text-xs text-gray-500">Email cannot be changed</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Email cannot be changed</p>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="image" className="text-sm font-medium text-gray-700">Profile Image URL</label>
+                        <label htmlFor="image" className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Profile Image URL</label>
                         <input
                             type="url"
                             name="image"
                             id="image"
                             value={formData.image}
                             onChange={handleInputChange}
-                            className="bg-white px-3 py-4 rounded-lg outline-none border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                            className={`px-3 py-4 rounded-lg outline-none border transition-colors focus:ring-2 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500 focus:ring-purple-200' : 'bg-white border-gray-300 text-gray-900 focus:border-indigo-500 focus:ring-indigo-200'}`}
                             placeholder="https://example.com/your-image.jpg"
                         />
                     </div>
@@ -168,14 +168,14 @@ export default function EditProfileForm({ userData, setEditForm, onUpdate }: {
                         <button
                             type="button"
                             onClick={() => setEditForm(false)}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                            className={`px-4 py-2 rounded-lg transition-colors ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
                             disabled={submitting}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-6 py-2 text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 rounded-lg disabled:opacity-50"
+                            className={`px-6 py-2 text-white rounded-lg disabled:opacity-50 transition-all duration-300 ${theme === 'dark' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700' : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'}`}
                             disabled={submitting}
                         >
                             {submitting ? "Saving..." : "Save Changes"}

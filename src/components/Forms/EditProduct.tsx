@@ -1,5 +1,7 @@
+"use client";
 import { Product } from "@/types/types";
 import { useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function EditProductForm({ productId, products, setEditForm }: {
     productId: string; products: Product[];
@@ -8,6 +10,7 @@ export default function EditProductForm({ productId, products, setEditForm }: {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const { theme } = useTheme();
     
     const productToEdit = products.find(product => product.id === productId);
     
@@ -76,12 +79,12 @@ export default function EditProductForm({ productId, products, setEditForm }: {
 
     return (
         <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className={`rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto backdrop-blur-md border transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-800/90 border-gray-700' : 'bg-white/90 border-white/20'}`}>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Edit Product</h2>
+                    <h2 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Edit Product</h2>
                     <button
                         onClick={() => setEditForm(false)}
-                        className="text-gray-500 hover:text-gray-700"
+                        className={`transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         ✕
                     </button>
